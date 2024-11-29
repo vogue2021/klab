@@ -7,14 +7,18 @@ import MindMap from '@/components/MindMap'
 import CodeAnimation from '@/components/CodeAnimation'
 import VisualizationTools from '@/components/VisualizationTools'
 import Sidebar from '@/components/Sidebar'
+import LearningContent from '@/components/LearningContent'
 
 export default function Home() {
   const [code, setCode] = useState('')
   const [selectedTool, setSelectedTool] = useState('flowchart')
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const [showLearningContent, setShowLearningContent] = useState(false)
+  const [selectedTopic, setSelectedTopic] = useState('')
 
   const handleTopicSelect = (topic: string) => {
-    console.log('Selected topic:', topic)
+    setSelectedTopic(topic)
+    setShowLearningContent(true)
   }
 
   return (
@@ -25,9 +29,8 @@ export default function Home() {
         isCollapsed={isSidebarCollapsed}
         onCollapsedChange={setIsSidebarCollapsed}
       />
-      
 
-      {/* 主要内容区域 - 使用flex-1自动占据剩余空间 */}
+      {/* 主要内容区域 */}
       <div className={`flex-1 flex flex-col transition-all duration-300 ${
         isSidebarCollapsed ? 'ml-16' : 'ml-64'
       }`}>
@@ -62,6 +65,14 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* 学习内容覆盖层 */}
+      {showLearningContent && (
+        <LearningContent 
+          topic={selectedTopic}
+          onClose={() => setShowLearningContent(false)}
+        />
+      )}
     </div>
   )
 }
