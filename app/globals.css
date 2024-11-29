@@ -2,21 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  color: var(--foreground);
-  background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -24,4 +10,302 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* 重要节点样式 */
+.important-node rect,
+.important-node circle {
+  stroke: #3b82f6;
+  stroke-width: 2px;
+  filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3));
+}
+
+.important-node text {
+  font-weight: bold;
+  fill: #1e40af;
+}
+
+/* 边线样式 */
+.edgePath path {
+  stroke: #94a3b8;
+  stroke-width: 1.5px;
+  transition: stroke-width 0.2s;
+}
+
+.edgePath:hover path {
+  stroke-width: 2.5px;
+}
+
+/* 箭头样式 */
+.arrowheadPath {
+  fill: #94a3b8;
+}
+
+/* 文本标签 */
+.edgeLabel {
+  background-color: white;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* 画布容器 */
+.canvas-container {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+}
+
+/* 节点样式 */
+.node {
+  cursor: move;
+  transition: filter 0.2s;
+}
+
+.node:hover {
+  filter: brightness(0.95);
+}
+
+.node.dragging {
+  filter: brightness(0.9);
+}
+
+/* 流程图样式 */
+.flowchart-container {
+  background: white;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+/* 节点样式 */
+.node rect {
+  stroke: #4b5563;
+  fill: #ffffff;
+  stroke-width: 2px;
+}
+
+.node text {
+  font-family: -apple-system, system-ui, sans-serif;
+  font-size: 14px;
+  fill: #1f2937;
+}
+
+/* 条件节点样式 */
+.node.diamond rect {
+  stroke: #7c3aed;
+  fill: #f5f3ff;
+}
+
+/* 开始/结束节点样式 */
+.node.start rect,
+.node.end rect {
+  stroke: #059669;
+  fill: #ecfdf5;
+}
+
+/* 边线样式 */
+.edgePath path {
+  stroke: #9ca3af;
+  stroke-width: 1.5px;
+}
+
+/* 箭头样式 */
+.arrowheadPath {
+  fill: #9ca3af;
+}
+
+/* 文本标签样式 */
+.edgeLabel {
+  background-color: #ffffff;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* 流程图节点样式 */
+.flowchart-node rect {
+  stroke: #4b5563;
+  fill: white;
+  stroke-width: 2px;
+  rx: 5px;
+  ry: 5px;
+}
+
+.flowchart-node text {
+  fill: #1f2937;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* 开始/结束节点 */
+.terminal-node rect {
+  stroke: #059669;
+  fill: #ecfdf5;
+}
+
+/* 条件节点 */
+.condition-node rect,
+.condition-node polygon {
+  stroke: #7c3aed;
+  fill: #f5f3ff;
+}
+
+/* 边线样式 */
+.edgePath path {
+  stroke: #9ca3af;
+  stroke-width: 1.5px;
+}
+
+/* 文本标签 */
+.edgeLabel {
+  background-color: white;
+  padding: 2px 4px;
+}
+
+/* 箭头 */
+.arrowheadPath {
+  fill: #9ca3af;
+}
+
+/* 缩放控制按钮样式 */
+.zoom-controls button {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+.zoom-controls button:hover {
+  @apply bg-gray-100;
+}
+
+.zoom-controls button:active {
+  @apply bg-gray-200;
+}
+
+/* 图形容器样式 */
+.graph-container {
+  @apply transition-transform duration-200 ease-in-out;
+}
+
+/* 节点在缩放时的样式 */
+.node {
+  @apply cursor-move;
+}
+
+.node:hover {
+  @apply opacity-80;
+}
+
+/* 连接线在缩放时的样式 */
+.link path {
+  @apply transition-all duration-200;
+}
+
+.link:hover path {
+  @apply stroke-2;
+}
+
+/* 节点样式 */
+.node {
+  transition: all 0.3s ease;
+}
+
+.node:hover .node-shape {
+  filter: brightness(1.1);
+}
+
+/* 节点发光效果 */
+.node-important .node-shape {
+  filter: url(#glow);
+}
+
+/* 连接线样式 */
+.link-path {
+  transition: all 0.3s ease;
+}
+
+.link-path:hover {
+  stroke-width: 3px;
+  filter: brightness(1.2);
+}
+
+/* 连接线标签样式 */
+.link-label {
+  background: white;
+  padding: 2px 4px;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* 动画效果 */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.node-important {
+  animation: pulse 2s infinite;
 }
