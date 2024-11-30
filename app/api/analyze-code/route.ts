@@ -1,118 +1,114 @@
 import { NextResponse } from 'next/server'
+import Anthropic from '@anthropic-ai/sdk'
+import { cache } from '@/lib/cache'
 
-interface Node {
-  id: string
-  label: string
-  type?: string
-}
-
-interface Link {
-  source: string
-  target: string
-  label?: string
-}
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY
+})
 
 export async function POST(request: Request) {
   try {
     const { code } = await request.json()
-
-    // 解析代码并生成节点和连接
-    const { nodes, links } = analyzeCode(code)
-
-    return NextResponse.json({ 
-      nodes,
-      links,
-      success: true 
-    })
-
-  } catch (error) {
-    console.error('Error:', error)
-    return NextResponse.json({ 
-      error: '生成流程图失败',
-      success: false 
-    }, { 
-      status: 500 
-    })
-  }
-}
-
-function analyzeCode(code: string): { nodes: Node[], links: Link[] } {
-  // 基本节点
-  const nodes: Node[] = [
-    { id: 'start', label: '开始', type: 'start' }
-  ]
-  const links: Link[] = []
-  let lastNodeId = 'start'
-  let nodeCounter = 1
-
-  // 分析代码
-  const lines = code.split('\n').filter(line => line.trim())
-  
-  lines.forEach((line, index) => {
-    const currentId = `node${nodeCounter}`
     
-    // 检测代码类型并创建相应节点
-    if (line.includes('def ')) {
-      // 函数定义
-      nodes.push({
-        id: currentId,
-        label: `函数定义\n${line.trim()}`,
-        type: 'function'
-      })
-    } else if (line.includes('if ')) {
-      // 条件语句
-      nodes.push({
-        id: currentId,
-        label: `条件判断\n${line.trim()}`,
-        type: 'condition'
-      })
-      
-      // 为 if 语句添加两个分支
-      const trueId = `node${nodeCounter + 1}`
-      const falseId = `node${nodeCounter + 2}`
-      
-      nodes.push(
-        { id: trueId, label: '执行True分支', type: 'process' },
-        { id: falseId, label: '执行False分支', type: 'process' }
-      )
-      
-      links.push(
-        { source: currentId, target: trueId, label: 'True' },
-        { source: currentId, target: falseId, label: 'False' }
-      )
-      
-      nodeCounter += 2
-    } else if (line.includes('while ') || line.includes('for ')) {
-      // 循环
-      nodes.push({
-        id: currentId,
-        label: `循环\n${line.trim()}`,
-        type: 'loop'
-      })
-    } else {
-      // 普通语句
-      nodes.push({
-        id: currentId,
-        label: line.trim(),
-        type: 'process'
-      })
+    if (!code) {
+      throw new Error('No code provided')
     }
 
-    // 添加连接
-    links.push({
-      source: lastNodeId,
-      target: currentId
+    // 检查缓存
+    const cachedData = cache.get(code, 'flowchart')
+    if (cachedData) {
+      console.log('Using cached flowchart data')
+      return NextResponse.json(cachedData)
+    }
+
+    const prompt = `分析以下Python代码，并提供：
+    1. 代码的主要功能和目的
+    2. 代码的执行流程，以简单的步骤列出
+    3. 将执行流程转换为流程图数据，格式如下：
+    {
+      "nodes": [
+        {
+          "id": "string",
+          "label": "节点描述",
+          "type": "start|end|process|condition|loop|function"
+        }
+      ],
+      "links": [
+        {
+          "source": "起始节点id",
+          "target": "目标节点id",
+          "label": "可选的连接描述"
+        }
+      ]
+    }
+
+    代码：
+    ${code}
+
+    请用中文回答，确保生成的是合法的JSON格式，包含nodes和links数组。节点类型说明：
+    - start: 开始节点
+    - end: 结束节点
+    - process: 普通处理节点
+    - condition: 条件判断节点
+    - loop: 循环节点
+    - function: 函数定义节点
+
+    请确保输出的JSON格式完全符合要求，不要添加任何额外的文字说明。`
+
+    console.log('Sending request to Anthropic...')
+    const message = await anthropic.messages.create({
+      model: 'claude-3-sonnet-20240229',
+      max_tokens: 4000,
+      temperature: 0.7,
+      system: "你是一个编程教育专家。请分析代码并生成适合初学者理解的流程图数据。返回的必须是一个有效的JSON字符串。不要包含任何其他说明文字。",
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ]
     })
 
-    lastNodeId = currentId
-    nodeCounter++
-  })
+    console.log('Received response from Anthropic')
+    
+    if (!message.content[0]?.text) {
+      throw new Error('Empty response from Anthropic')
+    }
 
-  // 添加结束节点
-  const endId = `node${nodeCounter}`
-  nodes.push({ id: endId, label: '结束', type: 'end' })
-  links.push({ source: lastNodeId, target: endId })
+    // 清理响应文本，确保只包含JSON
+    let cleanedResponse = message.content[0].text.trim()
+    // 如果响应包含了```json和```，只提取JSON部分
+    if (cleanedResponse.includes('```json')) {
+      cleanedResponse = cleanedResponse.split('```json')[1].split('```')[0].trim()
+    } else if (cleanedResponse.includes('```')) {
+      cleanedResponse = cleanedResponse.split('```')[1].trim()
+    }
 
-  return { nodes, links }
+    // 尝试解析JSON
+    let flowchartData
+    try {
+      flowchartData = JSON.parse(cleanedResponse)
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError)
+      console.error('Raw response:', cleanedResponse)
+      throw new Error('Invalid JSON response')
+    }
+
+    // 验证数据结构
+    if (!flowchartData.nodes || !flowchartData.links) {
+      throw new Error('Invalid flowchart data structure')
+    }
+
+    // 存入缓存
+    cache.set(code, 'flowchart', flowchartData)
+    
+    return NextResponse.json(flowchartData)
+  } catch (error) {
+    console.error('流程图生成错误:', error)
+    return NextResponse.json(
+      { error: '生成流程图失败' },
+      { status: 500 }
+    )
+  }
 }
 
