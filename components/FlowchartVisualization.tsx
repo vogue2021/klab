@@ -422,75 +422,108 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
   }
 
   return (
-    <div className="relative h-full flex flex-col bg-white rounded-lg p-4">
-      {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
-        </div>
-      )}
-      
-      {error ? (
-        <div className="flex-1 flex items-center justify-center text-red-500">
-          <div className="text-center">
-            <p>{error}</p>
-            <button 
-              onClick={() => setError(null)}
-              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              重试
-            </button>
+    <div className="relative h-full flex flex-col bg-white rounded-lg p-4 gap-4">
+      {/* 流程图区域 */}
+      <div className="flex-1 min-h-[400px] border border-gray-200 rounded-lg shadow-sm">
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
           </div>
-        </div>
-      ) : (
-        <div className="relative flex-1">
-          <div 
-            ref={containerRef}
-            className="w-full h-full overflow-hidden bg-gray-50 rounded-lg"
-            style={{ minHeight: '400px' }}
-          />
-          
-          {/* 缩放控制面板 */}
-          <div className="absolute bottom-4 right-4 flex flex-col gap-2 bg-white rounded-lg shadow-lg">
-            <button
-              onClick={() => handleZoom('in')}
-              className="p-2 hover:bg-gray-100 rounded-t-lg transition-colors"
-              title="放大"
-            >
-              <Plus className="w-5 h-5" />
-            </button>
-            <div className="h-px bg-gray-200" />
-            <button
-              onClick={() => handleZoom('out')}
-              className="p-2 hover:bg-gray-100 transition-colors"
-              title="缩小"
-            >
-              <Minus className="w-5 h-5" />
-            </button>
-            <div className="h-px bg-gray-200" />
-            <button
-              onClick={handleResetZoom}
-              className="p-2 hover:bg-gray-100 rounded-b-lg transition-colors text-xs"
-              title="重置缩放"
-            >
-              重置
-            </button>
+        )}
+        
+        {error ? (
+          <div className="flex-1 flex items-center justify-center text-red-500">
+            <div className="text-center">
+              <p>{error}</p>
+              <button 
+                onClick={() => setError(null)}
+                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                重试
+              </button>
+            </div>
           </div>
+        ) : (
+          <div className="relative h-full">
+            <div 
+              ref={containerRef}
+              className="w-full h-full overflow-hidden bg-gray-50 rounded-lg"
+            />
+            
+            {/* 缩放控制面板 */}
+            <div className="absolute bottom-4 right-4 flex flex-col gap-2 bg-white rounded-lg shadow-lg">
+              <button
+                onClick={() => handleZoom('in')}
+                className="p-2 hover:bg-gray-100 rounded-t-lg transition-colors"
+                title="放大"
+              >
+                <Plus className="w-5 h-5" />
+              </button>
+              <div className="h-px bg-gray-200" />
+              <button
+                onClick={() => handleZoom('out')}
+                className="p-2 hover:bg-gray-100 transition-colors"
+                title="缩小"
+              >
+                <Minus className="w-5 h-5" />
+              </button>
+              <div className="h-px bg-gray-200" />
+              <button
+                onClick={handleResetZoom}
+                className="p-2 hover:bg-gray-100 rounded-b-lg transition-colors text-xs"
+                title="重置缩放"
+              >
+                重置
+              </button>
+            </div>
 
-          {/* 缩放比例显示 */}
-          <div className="absolute top-4 right-4 bg-white px-2 py-1 rounded-md shadow-sm text-sm text-gray-600">
-            {Math.round(transform.k * 100)}%
+            {/* 缩放比例显示 */}
+            <div className="absolute top-4 right-4 bg-white px-2 py-1 rounded-md shadow-sm text-sm text-gray-600">
+              {Math.round(transform.k * 100)}%
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* AI 分析结果显示 */}
+      {/* AI 分析结果显示区域 */}
       {analysis && (
-        <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-lg font-semibold mb-2">代码分析：</h3>
-          <p className="text-gray-700 whitespace-pre-wrap">{analysis}</p>
+        <div className="border border-gray-200 rounded-lg shadow-sm bg-white">
+          <div className="p-3 border-b border-gray-200 bg-gray-50">
+            <h3 className="text-lg font-semibold text-gray-800">代码分析</h3>
+          </div>
+          <div className="p-4 max-h-[300px] overflow-y-auto custom-scrollbar">
+            <div className="prose prose-sm max-w-none">
+              <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                {analysis}
+              </p>
+            </div>
+          </div>
         </div>
       )}
     </div>
   )
 }
+
+// 添加到全局样式文件 (globals.css)
+/*
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E0 #EDF2F7;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #EDF2F7;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #CBD5E0;
+  border-radius: 3px;
+  border: 2px solid #EDF2F7;
+}
+*/
 
