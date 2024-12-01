@@ -23,12 +23,29 @@ export default function AudioLearning() {
     setShowLearningContent(true)
   }
 
-  // 分析代码
+  // 初始化音频上下文
+  const initAudio = async () => {
+    try {
+      // 创建音频上下文（需要用户交互）
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext
+      const audioContext = new AudioContext()
+      
+      if (audioContext.state === 'suspended') {
+        await audioContext.resume()
+      }
+    } catch (err) {
+      console.error('初始化音频失败:', err)
+    }
+  }
+
+  // 修改分析代码函数
   const analyzeCode = async () => {
     if (!code.trim()) return
 
     setIsAnalyzing(true)
     try {
+      // 获取 AI 分析结果
+      console.log('开始分析代码...')
       const analysisResponse = await fetch('/api/analyze-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -39,10 +56,18 @@ export default function AudioLearning() {
         throw new Error('代码分析失败')
       }
 
-      const { explanation } = await analysisResponse.json()
+      const data = await analysisResponse.json()
+      
+      if (data.error) {
+        throw new Error(data.error)
+      }
+
+      const explanation = data.explanation
+      console.log('AI 解释生成成功:', explanation)
       setExplanation(explanation)
 
       // 生成语音
+      console.log('开始生成语音...')
       const audioResponse = await fetch('/api/text-to-speech', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -50,33 +75,49 @@ export default function AudioLearning() {
       })
 
       if (!audioResponse.ok) {
-        throw new Error('语音生成失败')
+        const errorData = await audioResponse.json()
+        throw new Error(errorData.details || '语音生成失败')
       }
 
+      console.log('语音生成成功，准备播放')
       const audioBlob = await audioResponse.blob()
       const audioUrl = URL.createObjectURL(audioBlob)
 
       if (audioRef.current) {
-        audioRef.current.src = audioUrl
-        audioRef.current.play()
-        setIsPlaying(true)
+        try {
+          audioRef.current.src = audioUrl
+          await audioRef.current.play()
+          setIsPlaying(true)
+          console.log('音频开始播放')
+        } catch (playError) {
+          console.error('播放音频失败:', playError)
+          alert('播放音频需要用户交互，请点击播放按钮')
+        }
       }
     } catch (err) {
-      console.error('分析失败:', err)
+      console.error('处理失败:', err)
+      setIsAnalyzing(false) // 确保状态被重置
+      alert(err instanceof Error ? err.message : '处理失败')
     } finally {
       setIsAnalyzing(false)
     }
   }
 
-  // 处理播放/暂停
-  const togglePlay = () => {
+  // 修改播放/暂停函数
+  const togglePlay = async () => {
     if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause()
-      } else {
-        audioRef.current.play()
+      try {
+        await initAudio() // 确保音频上下文已初始化
+        
+        if (isPlaying) {
+          audioRef.current.pause()
+        } else {
+          await audioRef.current.play()
+        }
+        setIsPlaying(!isPlaying)
+      } catch (err) {
+        console.error('播放控制失败:', err)
       }
-      setIsPlaying(!isPlaying)
     }
   }
 
