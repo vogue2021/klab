@@ -27,6 +27,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
   const [scale, setScale] = useState(1)
   const [transform, setTransform] = useState({ x: 0, y: 0, k: 1 })
   const svgRef = useRef<SVGSVGElement | null>(null)
+  const [analysis, setAnalysis] = useState<string>('')
 
   // 添加节点类型和颜色配置
   const nodeStyles = {
@@ -393,9 +394,9 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
           throw new Error('流程图数据格式错误')
         }
 
-        // 确保容器存在
-        if (!containerRef.current) {
-          throw new Error('渲染容器不存在')
+        // 保存 AI 分析结果
+        if (data.analysis) {
+          setAnalysis(data.analysis)
         }
 
         // 渲染流程图
@@ -479,6 +480,14 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
           <div className="absolute top-4 right-4 bg-white px-2 py-1 rounded-md shadow-sm text-sm text-gray-600">
             {Math.round(transform.k * 100)}%
           </div>
+        </div>
+      )}
+
+      {/* AI 分析结果显示 */}
+      {analysis && (
+        <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+          <h3 className="text-lg font-semibold mb-2">代码分析：</h3>
+          <p className="text-gray-700 whitespace-pre-wrap">{analysis}</p>
         </div>
       )}
     </div>
