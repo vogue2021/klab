@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { ArrowLeft } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import CodeEditor from '@/components/CodeEditor'
 import FlowchartVisualization from '@/components/FlowchartVisualization'
 import MindMap from '@/components/MindMap'
@@ -10,6 +12,7 @@ import Sidebar from '@/components/Sidebar'
 import LearningContent from '@/components/LearningContent'
 
 export default function VisualPlatform() {
+  const router = useRouter()
   const [code, setCode] = useState('')
   const [selectedTool, setSelectedTool] = useState('flowchart')
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
@@ -19,6 +22,10 @@ export default function VisualPlatform() {
   const handleTopicSelect = (topic: string) => {
     setSelectedTopic(topic)
     setShowLearningContent(true)
+  }
+
+  const handleBack = () => {
+    router.push('/')
   }
 
   return (
@@ -32,7 +39,14 @@ export default function VisualPlatform() {
       <div className={`flex-1 flex flex-col transition-all duration-300 ${
         isSidebarCollapsed ? 'ml-16' : 'ml-64'
       }`}>
-        <div className="p-4 border-b bg-white">
+        <div className="p-4 border-b bg-white flex items-center gap-4">
+          <button
+            onClick={handleBack}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            title="返回主页"
+          >
+            <ArrowLeft className="w-6 h-6 text-gray-600" />
+          </button>
           <h1 className="text-2xl font-bold">Python可视化学习平台</h1>
         </div>
         
