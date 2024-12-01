@@ -1,11 +1,13 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Play, Pause, Volume2 } from 'lucide-react'
+import { Play, Pause, Volume2, ArrowLeft } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import Sidebar from '@/components/Sidebar'
 import AudioContent from '@/components/AudioContent'
 
 export default function AudioLearning() {
+  const router = useRouter()
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [showLearningContent, setShowLearningContent] = useState(false)
   const [selectedTopic, setSelectedTopic] = useState('')
@@ -154,6 +156,11 @@ export default function AudioLearning() {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
+  // 处理返回
+  const handleBack = () => {
+    router.push('/')
+  }
+
   // 组件卸载时清理
   useEffect(() => {
     const audio = audioRef.current
@@ -183,7 +190,15 @@ export default function AudioLearning() {
         isSidebarCollapsed ? 'ml-16' : 'ml-64'
       }`}>
         {/* 顶部标题栏 */}
-        <div className="p-4 border-b bg-white">
+        <div className="p-4 border-b bg-white flex items-center gap-4">
+          {/* 返回按钮 */}
+          <button
+            onClick={handleBack}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            title="返回主页"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
           <h1 className="text-2xl font-bold">Python语音教学平台</h1>
         </div>
         

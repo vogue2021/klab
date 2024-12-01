@@ -377,7 +377,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
       setError(null)
 
       try {
-        const response = await fetch('/api/analyze-code', {
+        const response = await fetch('/api/analyze-code-flow', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ code }),
