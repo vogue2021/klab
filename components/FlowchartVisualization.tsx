@@ -493,9 +493,41 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
           </div>
           <div className="p-4 max-h-[300px] overflow-y-auto custom-scrollbar">
             <div className="prose prose-sm max-w-none">
-              <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                {analysis}
-              </p>
+              {analysis.split('\n').map((line, index) => {
+                // 处理代码块
+                if (line.includes('`')) {
+                  return (
+                    <p key={index} className="my-1">
+                      {line.split('`').map((part, i) => {
+                        if (i % 2 === 1) {
+                          // 代码部分
+                          return (
+                            <code key={i} className="px-1.5 py-0.5 bg-gray-100 rounded text-sm font-mono text-blue-600">
+                              {part}
+                            </code>
+                          )
+                        }
+                        // 普通文本部分
+                        return <span key={i}>{part}</span>
+                      })}
+                    </p>
+                  )
+                }
+                // 处理标题行
+                if (line.match(/^[1-9]\./) || line.includes('：')) {
+                  return (
+                    <h4 key={index} className="font-semibold mt-3 mb-2 text-gray-800">
+                      {line}
+                    </h4>
+                  )
+                }
+                // 普通文本行
+                return (
+                  <p key={index} className="my-1 text-gray-700">
+                    {line}
+                  </p>
+                )
+              })}
             </div>
           </div>
         </div>

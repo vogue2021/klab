@@ -23,19 +23,19 @@ export async function POST(request: Request) {
 
     // 首先用 AI 分析代码
     const prompt = `你是一位 Python 编程老师。请分析以下 Python 代码，并提供：
-    1. 代码的主要功能和目的
-    2. 代码的执行流程，用简单的步骤列出
-    3. 重点关注代码中的：
-       - 函数定义
-       - 条件判断
-       - 循环结构
-       - 关键操作
-    4. 用初学者容易理解的语言描述每个步骤
+    1. 代码的主要功能和目的（一句话概括）
+    2. 代码的执行流程，用简单的步骤列出（每步不超过10个字）
+    3. 详细解释：
+       - 关键函数的作用
+       - 重要变量的含义
+       - 核心算法的思路
+    
+    请在解释中用 \`代码\` 标记代码片段，确保解释清晰易懂。
 
     代码：
     ${code}
 
-    请用中文回答，确保解释清晰易懂。`
+    请用中文回答，注意保持格式规范。`
 
     const aiResponse = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
@@ -90,21 +90,44 @@ function generateFlowchart(code: string, analysis: string): { nodes: Node[], lin
   // 分析代码
   const lines = code.split('\n').filter(line => line.trim())
   
+  function simplifyLabel(text: string): string {
+    // 简化函数定义
+    if (text.includes('def ')) {
+      return text.split('(')[0].replace('def ', '函数: ')
+    }
+    // 简化条件判断
+    if (text.includes('if ')) {
+      return text.replace(/if\s+/, '判断: ').split(':')[0]
+    }
+    // 简化循环
+    if (text.includes('while ')) {
+      return text.replace(/while\s+/, '循环: ').split(':')[0]
+    }
+    if (text.includes('for ')) {
+      return text.replace(/for\s+/, '循环: ').split(':')[0]
+    }
+    // 简化返回语句
+    if (text.includes('return ')) {
+      return '返回: ' + text.replace('return ', '')
+    }
+    // 其他语句保持简短
+    return text.length > 15 ? text.slice(0, 15) + '...' : text
+  }
+
   lines.forEach((line, index) => {
     const currentId = `node${nodeCounter}`
-    const step = steps[index] // 获取对应的 AI 分析步骤
+    const step = steps[index]
     
-    // 检测代码类型并创建相应节点
     if (line.includes('def ')) {
       nodes.push({
         id: currentId,
-        label: `函数定义\n${step || line.trim()}`, // 使用 AI 解释或原始代码
+        label: simplifyLabel(line.trim()),
         type: 'function'
       })
     } else if (line.includes('if ')) {
       nodes.push({
         id: currentId,
-        label: `条件判断\n${step || line.trim()}`,
+        label: simplifyLabel(line.trim()),
         type: 'condition'
       })
       
