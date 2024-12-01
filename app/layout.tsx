@@ -18,7 +18,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh">
+    <html lang="en">
+      <head>
+        <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+      </head>
       <body>
         <div className="flex h-screen">
           {/* <Sidebar /> */}
