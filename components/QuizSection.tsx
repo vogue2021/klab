@@ -30,13 +30,13 @@ export default function QuizSection({ quiz, index }: QuizSectionProps) {
   return (
     <div className="bg-white rounded-lg shadow-sm border p-6">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">练习 {index}</h3>
+        <h3 className="text-lg font-semibold text-gray-800">練習 {index}</h3>
         <p className="mt-2 text-gray-600">{quiz.question}</p>
       </div>
 
       <div className="space-y-4">
         {quiz.type === 'choice' ? (
-          // 选择题
+          // 選択問題
           <div className="space-y-2">
             {quiz.options?.map((option, optionIndex) => (
               <button
@@ -54,7 +54,7 @@ export default function QuizSection({ quiz, index }: QuizSectionProps) {
             ))}
           </div>
         ) : (
-          // 代码补全题
+          // コード補完問題
           <div className="space-y-2">
             <div className="bg-gray-900 p-4 rounded-lg">
               <pre className="text-white font-mono text-sm whitespace-pre-wrap">
@@ -65,7 +65,7 @@ export default function QuizSection({ quiz, index }: QuizSectionProps) {
               type="text"
               value={selectedAnswer || ''}
               onChange={(e) => !showResult && setSelectedAnswer(e.target.value)}
-              placeholder="请输入缺失的代码"
+              placeholder="不足しているコードを入力してください"
               className="w-full p-2 border rounded"
               disabled={showResult}
             />
@@ -78,7 +78,7 @@ export default function QuizSection({ quiz, index }: QuizSectionProps) {
             disabled={!selectedAnswer}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
           >
-            提交答案
+            回答を送信
           </button>
         )}
 
@@ -95,7 +95,7 @@ export default function QuizSection({ quiz, index }: QuizSectionProps) {
               <span className={`font-semibold ${
                 isCorrect ? 'text-green-700' : 'text-red-700'
               }`}>
-                {isCorrect ? '回答正确！' : '回答错误'}
+                {isCorrect ? '正解です！' : '不正解です'}
               </span>
             </div>
             <p className={isCorrect ? 'text-green-600' : 'text-red-600'}>

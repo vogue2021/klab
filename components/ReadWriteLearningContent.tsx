@@ -47,13 +47,13 @@ export default function ReadWriteLearningContent({ topic, onClose }: ReadWriteLe
         })
 
         if (!response.ok) {
-          throw new Error('获取内容失败')
+          throw new Error('コンテンツの取得に失敗しました')
         }
 
         const data = await response.json()
         setContent(data)
       } catch (err) {
-        console.error('加载内容失败:', err)
+        console.error('コンテンツの読み込みに失敗しました:', err)
       } finally {
         setLoading(false)
       }
@@ -92,7 +92,7 @@ export default function ReadWriteLearningContent({ topic, onClose }: ReadWriteLe
         <div className="p-6">
           {content && (
             <div className="space-y-8">
-              {/* 概念说明 */}
+              {/* 概念説明 */}
               <div className="bg-blue-50 p-6 rounded-lg">
                 <h3 className="text-lg font-semibold text-blue-900 mb-4">概念理解</h3>
                 <p className="text-blue-800 mb-4">{content.introduction}</p>
@@ -103,9 +103,9 @@ export default function ReadWriteLearningContent({ topic, onClose }: ReadWriteLe
                 </div>
               </div>
 
-              {/* 相关知识点 */}
+              {/* 関連知識 */}
               <div className="bg-purple-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-purple-900 mb-4">相关知识点</h3>
+                <h3 className="text-lg font-semibold text-purple-900 mb-4">関連知識</h3>
                 <div className="grid gap-4">
                   {content.relatedTopics.map((topic, index) => (
                     <div key={index} className="bg-white p-4 rounded-lg shadow-sm">
@@ -116,7 +116,7 @@ export default function ReadWriteLearningContent({ topic, onClose }: ReadWriteLe
                 </div>
               </div>
 
-              {/* 代码示例和讲解 */}
+              {/* コード例と解説 */}
               {content.sections.map((section, sectionIndex) => (
                 <div key={sectionIndex} className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-800">{section.title}</h3>

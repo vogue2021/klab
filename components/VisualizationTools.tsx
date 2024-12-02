@@ -8,20 +8,20 @@ import { GitBranch, GitGraph, Play } from 'lucide-react'
 const tools = [
   {
     id: 'flowchart',
-    name: '流程图',
-    description: '将代码转换为流程图',
+    name: 'フローチャート',
+    description: 'コードをフローチャートに変換',
     icon: GitGraph
   },
   {
     id: 'mindmap',
-    name: '思维导图',
-    description: '代码结构思维导图',
+    name: 'マインドマップ',
+    description: 'コード構造のマインドマップ',
     icon: GitBranch
   },
   {
     id: 'animation',
-    name: '代码动画',
-    description: '代码执行动画演示',
+    name: 'コードアニメーション',
+    description: 'コード実行のアニメーション',
     icon: Play
   }
 ]
@@ -42,7 +42,7 @@ export default function VisualizationTools({
       "relative h-full bg-white border-r transition-all duration-300",
       isCollapsed ? "w-[50px]" : "w-64"
     )}>
-      {/* 收缩按钮 */}
+      {/* 折りたたみボタン */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
         className="absolute -right-3 top-6 z-10 p-1 bg-white border rounded-full shadow-md"
@@ -54,13 +54,13 @@ export default function VisualizationTools({
         )}
       </button>
 
-      {/* 工具内容 */}
+      {/* ツール内容 */}
       <div className={cn(
         "h-full overflow-hidden transition-all duration-300",
         isCollapsed ? "opacity-0" : "opacity-100"
       )}>
         <div className="py-4">
-          <h2 className="px-4 text-lg font-semibold mb-4">可视化工具</h2>
+          <h2 className="px-4 text-lg font-semibold mb-4">可視化ツール</h2>
           {!isCollapsed && (
             <div className="space-y-1">
               {tools.map((tool) => (

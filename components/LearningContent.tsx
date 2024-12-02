@@ -26,14 +26,14 @@ export default function LearningContent({ topic, onClose }: LearningContentProps
         })
 
         if (!response.ok) {
-          throw new Error('获取内容失败')
+          throw new Error('コンテンツの取得に失敗しました')
         }
 
         const data = await response.json()
         console.log('Received data:', data)
         setContent(data)
       } catch (error) {
-        console.error('获取学习内容错误:', error)
+        console.error('学習コンテンツの取得エラー:', error)
       } finally {
         setLoading(false)
       }
@@ -48,7 +48,7 @@ export default function LearningContent({ topic, onClose }: LearningContentProps
                     flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
-          <p className="text-gray-600">正在生成学习内容...</p>
+          <p className="text-gray-600">学習コンテンツを生成中...</p>
         </div>
       </div>
     )
@@ -65,23 +65,23 @@ export default function LearningContent({ topic, onClose }: LearningContentProps
       </button>
 
       <div className="max-w-5xl mx-auto p-8">
-        {/* 标题区域 */}
+        {/* タイトルエリア */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <h2 className="text-2xl font-bold text-gray-800">{topic}</h2>
         </div>
 
         {content && (
           <>
-            {/* 概念解析 */}
+            {/* 概念分析 */}
             <section className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">概念解析</h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">概念分析</h3>
               <div className="space-y-6">
-                {/* D3.js 概念图示 */}
+                {/* D3.js 概念図 */}
                 {content.concept?.visualization && (
                   <ConceptDiagram data={content.concept.visualization} />
                 )}
                 
-                {/* 文字解释 */}
+                {/* テキスト説明 */}
                 <div className="prose max-w-none">
                   <p className="text-gray-600 leading-relaxed">
                     {content.concept?.explanation}
@@ -90,9 +90,9 @@ export default function LearningContent({ topic, onClose }: LearningContentProps
               </div>
             </section>
 
-            {/* 代码示例 */}
+            {/* コード例 */}
             <section className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">代码示例</h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">コード例</h3>
               <div className="space-y-6">
                 {content.examples?.map((example: any, index: number) => (
                   <div key={index} className="border rounded-lg p-4">
@@ -102,7 +102,7 @@ export default function LearningContent({ topic, onClose }: LearningContentProps
                     <p className="text-gray-600">{example.explanation}</p>
                     {example.output && (
                       <div className="mt-4 bg-gray-50 p-4 rounded-lg">
-                        <p className="text-sm text-gray-500">输出:</p>
+                        <p className="text-sm text-gray-500">出力:</p>
                         <pre className="mt-2">{example.output}</pre>
                       </div>
                     )}
@@ -111,9 +111,9 @@ export default function LearningContent({ topic, onClose }: LearningContentProps
               </div>
             </section>
 
-            {/* 练习题目 */}
+            {/* 練習問題 */}
             <section className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">练习题目</h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">練習問題</h3>
               <div className="space-y-6">
                 {content.exercises?.map((exercise: any, index: number) => (
                   <div key={index} className="border rounded-lg p-4">
@@ -121,7 +121,7 @@ export default function LearningContent({ topic, onClose }: LearningContentProps
                     <div className="space-y-2">
                       {exercise.hints.map((hint: string, hintIndex: number) => (
                         <p key={hintIndex} className="text-gray-600 text-sm">
-                          提示 {hintIndex + 1}: {hint}
+                          ヒント {hintIndex + 1}: {hint}
                         </p>
                       ))}
                     </div>

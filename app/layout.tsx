@@ -8,8 +8,8 @@ import FloatingButton from '@/components/FloatingButton'
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Python可视化学习平台",
-  description: "面向初学者的Python交互式学习平台",
+  title: "Pythonビジュアル学習プラットフォーム",
+  description: "初学者向けのPython対話型学習プラットフォーム",
 };
 
 export default function RootLayout({

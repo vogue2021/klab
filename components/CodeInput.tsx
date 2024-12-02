@@ -29,14 +29,14 @@ export default function CodeInput({ onFlowchartData }: CodeInputProps) {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to analyze code')
+        throw new Error(data.error || 'コードの分析に失敗しました')
       }
 
-      console.log('Received flowchart data:', data)
+      console.log('フローチャートデータを受信:', data)
       onFlowchartData(data)
     } catch (error) {
-      console.error('Error analyzing code:', error)
-      setError(error.message || 'An error occurred while analyzing the code')
+      console.error('コードの分析中にエラーが発生:', error)
+      setError(error.message || 'コードの分析中にエラーが発生しました')
     } finally {
       setIsLoading(false)
     }
@@ -47,7 +47,7 @@ export default function CodeInput({ onFlowchartData }: CodeInputProps) {
       <Textarea
         value={code}
         onChange={(e) => setCode(e.target.value)}
-        placeholder="Enter your code here..."
+        placeholder="ここにコードを入力してください..."
         className="h-64"
       />
       {error && (
@@ -56,9 +56,8 @@ export default function CodeInput({ onFlowchartData }: CodeInputProps) {
         </Alert>
       )}
       <Button type="submit" disabled={isLoading}>
-        {isLoading ? 'Generating...' : 'Generate Flowchart'}
+        {isLoading ? '生成中...' : 'フローチャートを生成'}
       </Button>
     </form>
   )
 }
-

@@ -22,7 +22,7 @@ export default function FlowchartCanvas({ chart, className = '' }: FlowchartCanv
       if (!containerRef.current) return
 
       try {
-        // 配置 mermaid
+        // mermaidを設定
         mermaid.initialize({
           startOnLoad: true,
           theme: 'default',
@@ -35,24 +35,24 @@ export default function FlowchartCanvas({ chart, className = '' }: FlowchartCanv
           }
         })
 
-        // 渲染流程图
+        // フローチャートをレンダリング
         const { svg } = await mermaid.render('flowchart', chart)
         
-        // 清除容器
+        // コンテナをクリア
         if (containerRef.current) {
           containerRef.current.innerHTML = svg
         }
 
-        // 获取新的 SVG 元素
+        // 新しいSVG要素を取得
         const svgElement = containerRef.current.querySelector('svg')
         if (svgElement) {
           svgRef.current = svgElement
           
-          // 设置 SVG 样式
+          // SVGスタイルを設定
           svgElement.style.width = '100%'
           svgElement.style.height = '100%'
           
-          // 初始化交互功能
+          // インタラクションを初期化
           initializeInteractions(svgElement)
         }
       } catch (error) {
@@ -67,14 +67,14 @@ export default function FlowchartCanvas({ chart, className = '' }: FlowchartCanv
     const nodes = svg.querySelectorAll('.node')
     
     nodes.forEach(node => {
-      // 添加拖拽功能
+      // ドラッグ機能を追加
       d3.select(node)
         .call(d3.drag()
           .on('start', dragStarted)
           .on('drag', dragged)
           .on('end', dragEnded))
         
-      // 为重要节点添加特殊样式
+      // 重要なノードに特別なスタイルを追加
       if (node.textContent?.includes('[重要]')) {
         node.classList.add('important-node')
       }
@@ -93,11 +93,11 @@ export default function FlowchartCanvas({ chart, className = '' }: FlowchartCanv
     node.x = event.x
     node.y = event.y
     
-    // 更新节点位置
+    // ノードの位置を更新
     d3.select(event.sourceEvent.target.closest('.node'))
       .attr('transform', `translate(${event.x},${event.y})`)
     
-    // 更新连接线
+    // エッジを更新
     updateEdges()
   }
 
@@ -111,10 +111,10 @@ export default function FlowchartCanvas({ chart, className = '' }: FlowchartCanv
     
     const edges = svgRef.current.querySelectorAll('.edge')
     edges.forEach(edge => {
-      // 更新连接线的路径
+      // エッジのパスを更新
       const path = edge.querySelector('path')
       if (path) {
-        // 这里可以添加自定义的路径计算逻辑
+        // カスタムパス計算ロジックをここに追加できます
       }
     })
   }
@@ -131,7 +131,7 @@ export default function FlowchartCanvas({ chart, className = '' }: FlowchartCanv
 
   return (
     <div className={`relative ${className}`}>
-      {/* 流程图容器 */}
+      {/* フローチャートコンテナ */}
       <div 
         ref={containerRef}
         className="w-full h-full overflow-hidden"
@@ -141,12 +141,12 @@ export default function FlowchartCanvas({ chart, className = '' }: FlowchartCanv
         }}
       />
       
-      {/* 缩放控制按钮 */}
+      {/* ズームコントロールボタン */}
       <div className="absolute bottom-4 right-4 flex flex-col gap-2 bg-white rounded-lg shadow-lg">
         <button
           onClick={() => handleZoom(0.1)}
           className="p-2 hover:bg-gray-100 rounded-t-lg"
-          title="放大"
+          title="拡大"
         >
           <Plus className="w-5 h-5" />
         </button>
@@ -154,18 +154,18 @@ export default function FlowchartCanvas({ chart, className = '' }: FlowchartCanv
         <button
           onClick={() => handleZoom(-0.1)}
           className="p-2 hover:bg-gray-100 rounded-b-lg"
-          title="缩小"
+          title="縮小"
         >
           <Minus className="w-5 h-5" />
         </button>
       </div>
 
-      {/* 拖拽提示 */}
+      {/* ドラッグ通知 */}
       {isDragging && (
         <div className="absolute top-4 left-4 bg-black/75 text-white px-3 py-1 rounded-full text-sm">
           <div className="flex items-center gap-2">
             <MoveIcon className="w-4 h-4" />
-            <span>正在移动节点</span>
+            <span>ノードを移動中</span>
           </div>
         </div>
       )}

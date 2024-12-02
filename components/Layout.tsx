@@ -14,12 +14,12 @@ export default function Layout({
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* 侧边栏 */}
+      {/* サイドバー */}
       <div 
         className={`relative bg-white shadow-lg transition-all duration-300 ease-in-out
           ${isCollapsed ? 'w-[50px]' : 'w-64'}`}
       >
-        {/* 收缩按钮 */}
+        {/* 折りたたみボタン */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="absolute -right-4 top-4 bg-white rounded-full p-1 shadow-md z-10
@@ -32,13 +32,13 @@ export default function Layout({
           )}
         </button>
 
-        {/* 侧边栏内容 */}
+        {/* サイドバーコンテンツ */}
         <div className={`h-full overflow-hidden ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
           {sidebar}
         </div>
       </div>
 
-      {/* 主内容区 */}
+      {/* メインコンテンツ */}
       <div className="flex-1 overflow-hidden">
         {children}
       </div>

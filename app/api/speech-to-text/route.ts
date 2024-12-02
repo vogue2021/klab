@@ -12,7 +12,7 @@ export async function POST(request: Request) {
 
     if (!audioFile) {
       return NextResponse.json(
-        { error: '没有找到音频文件' },
+        { error: '音声ファイルが見つかりません' },
         { status: 400 }
       )
     }
@@ -20,15 +20,15 @@ export async function POST(request: Request) {
     const transcription = await openai.audio.transcriptions.create({
       file: audioFile,
       model: 'whisper-1',
-      language: 'zh', // 设置为中文
+      language: 'zh', // 中国語に設定
       response_format: 'json',
     })
 
     return NextResponse.json({ text: transcription.text })
   } catch (error) {
-    console.error('语音转文字错误:', error)
+    console.error('音声からテキストへの変換エラー:', error)
     return NextResponse.json(
-      { error: '语音识别失败' },
+      { error: '音声認識に失敗しました' },
       { status: 500 }
     )
   }

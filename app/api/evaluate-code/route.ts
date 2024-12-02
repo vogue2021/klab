@@ -13,29 +13,29 @@ export async function POST(request: Request) {
       throw new Error('Missing required fields')
     }
 
-    const prompt = `你是一位 Python 编程老师。请评价学生对以下练习的解答：
+    const prompt = `あなたはPythonのプログラミング講師です。以下の練習問題に対する生徒の解答を評価してください：
 
-问题：${question}
+問題：${question}
 
-学生的代码：
+生徒のコード：
 ${code}
 
-运行结果：
-${output || '无输出'}
+実行結果：
+${output || '出力なし'}
 
-请提供简短的评价，包括：
-1. 代码是否正确解决了问题
-2. 代码风格和可读性
-3. 可以改进的地方
-4. 鼓励性的话语
+以下を含む簡潔な評価を提供してください：
+1. コードは問題を正しく解決しているか
+2. コードスタイルと可読性
+3. 改善できる点
+4. 励ましの言葉
 
-请用友善的语气，评价要简洁明了。`
+親切な口調で、評価は簡潔で分かりやすくしてください。`
 
     const message = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
       max_tokens: 1000,
       temperature: 0.7,
-      system: "你是一个友善的编程老师，善于鼓励学生。你的评价要简洁、具体、有建设性。",
+      system: "あなたは親切なプログラミング講師で、生徒を励ますのが得意です。評価は簡潔で具体的で建設的であるべきです。",
       messages: [{
         role: 'user',
         content: prompt
@@ -48,9 +48,9 @@ ${output || '无输出'}
 
     return NextResponse.json({ feedback: message.content[0].text.trim() })
   } catch (error) {
-    console.error('评估代码失败:', error)
+    console.error('コードの評価に失敗しました:', error)
     return NextResponse.json(
-      { error: '评估代码失败' },
+      { error: 'コードの評価に失敗しました' },
       { status: 500 }
     )
   }

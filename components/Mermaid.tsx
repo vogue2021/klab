@@ -16,7 +16,7 @@ export default function Mermaid({ chart }: MermaidProps) {
       if (!containerRef.current) return
 
       try {
-        // 初始化 mermaid
+        // mermaidを初期化
         mermaid.initialize({
           startOnLoad: true,
           theme: 'default',
@@ -28,20 +28,20 @@ export default function Mermaid({ chart }: MermaidProps) {
           }
         })
 
-        // 清除之前的内容
+        // 以前のコンテンツをクリア
         containerRef.current.innerHTML = ''
 
-        // 生成唯一ID
+        // ユニークIDを生成
         const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`
         
-        // 渲染图表
+        // チャートをレンダリング
         const { svg } = await mermaid.render(id, chart)
         if (containerRef.current) {
           containerRef.current.innerHTML = svg
         }
       } catch (err) {
         console.error('Mermaid render error:', err)
-        setError('图表渲染失败')
+        setError('チャートのレンダリングに失敗しました')
       }
     }
 

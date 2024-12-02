@@ -39,7 +39,7 @@ export default function ChatWindow({ initialQuestion, onClose }: ChatWindowProps
   const handleSendMessage = async (content: string) => {
     if (!content.trim()) return
 
-    // 立即添加用户消息
+    // ユーザーメッセージを即時追加
     setMessages(prev => [...prev, { role: 'user', content }])
     setIsLoading(true)
 
@@ -49,12 +49,12 @@ export default function ChatWindow({ initialQuestion, onClose }: ChatWindowProps
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           message: content,
-          history: messages // 发送对话历史以保持上下文
+          history: messages // 会話の履歴を送信してコンテキストを維持
         })
       })
 
       if (!response.ok) {
-        throw new Error('发送消息失败')
+        throw new Error('メッセージの送信に失敗しました')
       }
 
       const data = await response.json()
@@ -63,7 +63,7 @@ export default function ChatWindow({ initialQuestion, onClose }: ChatWindowProps
       console.error('Chat error:', error)
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: '抱歉，处理您的问题时出现错误。请重试。' 
+        content: '申し訳ありません。問題の処理中にエラーが発生しました。もう一度お試しください。' 
       }])
     } finally {
       setIsLoading(false)
@@ -96,7 +96,7 @@ export default function ChatWindow({ initialQuestion, onClose }: ChatWindowProps
                 </code>
               )
             },
-            // 添加其他 Markdown 样式
+            // 他のMarkdownスタイルを追加
             strong: (props) => <strong className="font-bold text-blue-600" {...props} />,
             em: (props) => <em className="italic text-purple-600" {...props} />,
             h1: (props) => <h1 className="text-xl font-bold my-2" {...props} />,
@@ -119,7 +119,7 @@ export default function ChatWindow({ initialQuestion, onClose }: ChatWindowProps
   return (
     <div className="fixed bottom-4 right-4 w-[450px] h-[600px] bg-white rounded-lg shadow-xl border flex flex-col z-50">
       <div className="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
-        <h3 className="font-medium">AI 助手</h3>
+        <h3 className="font-medium">AIアシスタント</h3>
         <button
           onClick={onClose}
           className="p-1 hover:bg-gray-200 rounded-full transition-colors"
@@ -165,7 +165,7 @@ export default function ChatWindow({ initialQuestion, onClose }: ChatWindowProps
                 handleSendMessage(input)
               }
             }}
-            placeholder="输入问题..."
+            placeholder="質問を入力..."
             className="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button

@@ -7,26 +7,26 @@ import Sidebar from '@/components/Sidebar'
 import PracticeLearningContent from '@/components/PracticeLearningContent'
 import PracticeExercise from '@/components/PracticeExercise'
 
-// 定义学习主题
+// 学習トピックを定義する
 const TOPICS = [
   {
-    category: "Python基础",
+    category: "Pythonの基礎",
     items: [
-      "变量和数据类型",
-      "条件语句",
-      "循环语句",
-      "函数",
-      "列表和元组",
-      "字典和集合"
+      "変数とデータ型",
+      "条件文",
+      "ループ文",
+      "関数",
+      "リストとタプル",
+      "辞書とセット"
     ]
   },
   {
-    category: "进阶概念",
+    category: "上級概念",
     items: [
-      "类和对象",
-      "文件操作",
-      "异常处理",
-      "模块和包"
+      "クラスとオブジェクト",
+      "ファイル操作",
+      "例外処理",
+      "モジュールとパッケージ"
     ]
   }
 ]
@@ -103,30 +103,30 @@ export default function PracticePlatform() {
           <button
             onClick={handleBack}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            title="返回主页"
+            title="ホームに戻る"
           >
             <ArrowLeft className="w-6 h-6 text-gray-600" />
           </button>
-          <h1 className="text-2xl font-bold">Python实践学习平台</h1>
+          <h1 className="text-2xl font-bold">Python実践学習プラットフォーム</h1>
         </div>
         
         <div className="flex-1 p-8">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-12 gap-6">
-              {/* 选择区域 */}
+              {/* 選択エリア */}
               <div className="col-span-4 bg-white p-6 rounded-lg shadow">
-                <h2 className="text-xl font-semibold mb-4">选择学习内容</h2>
+                <h2 className="text-xl font-semibold mb-4">学習内容を選択</h2>
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      类别
+                      カテゴリー
                     </label>
                     <select
                       value={selectedCategory}
                       onChange={(e) => handleCategoryChange(e.target.value)}
                       className="w-full border rounded-md p-2"
                     >
-                      <option value="">请选择类别</option>
+                      <option value="">カテゴリーを選択してください</option>
                       {TOPICS.map(topic => (
                         <option key={topic.category} value={topic.category}>
                           {topic.category}
@@ -138,14 +138,14 @@ export default function PracticePlatform() {
                   {selectedCategory && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        主题
+                        トピック
                       </label>
                       <select
                         value={selectedTopic}
                         onChange={(e) => handleTopicChange(e.target.value)}
                         className="w-full border rounded-md p-2"
                       >
-                        <option value="">请选择主题</option>
+                        <option value="">トピックを選択してください</option>
                         {TOPICS.find(t => t.category === selectedCategory)?.items.map(item => (
                           <option key={item} value={item}>
                             {item}
@@ -157,11 +157,11 @@ export default function PracticePlatform() {
                 </div>
               </div>
 
-              {/* 练习区域 */}
+              {/* 練習エリア */}
               <div className="col-span-8">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-semibold">
-                    {selectedTopic ? `${selectedTopic}练习` : '实践练习'}
+                    {selectedTopic ? `${selectedTopic}練習` : '実践練習'}
                   </h2>
                   {selectedTopic && (
                     <button
@@ -170,7 +170,7 @@ export default function PracticePlatform() {
                       className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
                     >
                       <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-                      重新生成
+                      再生成
                     </button>
                   )}
                 </div>
@@ -191,11 +191,11 @@ export default function PracticePlatform() {
                   </div>
                 ) : selectedTopic ? (
                   <div className="text-center text-gray-500 py-12">
-                    正在准备练习题...
+                    練習問題を準備中...
                   </div>
                 ) : (
                   <div className="text-center text-gray-500 py-12">
-                    请选择一个主题开始练习
+                    トピックを選択して練習を始めてください
                   </div>
                 )}
               </div>

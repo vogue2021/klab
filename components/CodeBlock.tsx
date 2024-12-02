@@ -29,7 +29,7 @@ export default function CodeBlock({ code, language = 'python' }: CodeBlockProps)
         onClick={handleCopy}
         className="absolute right-2 top-2 p-2 rounded-lg bg-gray-800 text-gray-300 
                  opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-        title={copied ? '已复制' : '复制代码'}
+        title={copied ? 'コピー済み' : 'コードをコピー'}
       >
         {copied ? (
           <Check className="w-4 h-4 text-green-400" />

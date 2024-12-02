@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   try {
     const { message, history } = await request.json()
 
-    // 构建上下文
+    // コンテキストを構築
     const contextMessages = history?.map((msg: any) => ({
       role: msg.role,
       content: msg.content
@@ -23,15 +23,15 @@ export async function POST(request: Request) {
         ...contextMessages,
         {
           role: 'user',
-          content: `请解答这个Python相关的问题，要求：
-1. 回答要有清晰的逻辑结构
-2. 重要概念用**加粗**标记
-3. 代码示例要用 \`\`\`python 和 \`\`\` 包裹
-4. 如果有步骤，用有序列表表示
-5. 如果有要点，用无序列表表示
-6. 专业术语用*斜体*标记
+          content: `このPython関連の質問に答えてください。要件：
+1. 回答は明確な論理構造を持つこと
+2. 重要な概念は**太字**でマークすること
+3. コード例は \`\`\`python と \`\`\` で囲むこと
+4. 手順がある場合は順序付きリストで表示すること
+5. ポイントがある場合は箇条書きで表示すること
+6. 専門用語は*斜体*でマークすること
 
-问题：${message}`
+質問：${message}`
         }
       ]
     })
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Chat API error:', error)
     return NextResponse.json(
-      { error: '发送消息失败' },
+      { error: 'メッセージの送信に失敗しました' },
       { status: 500 }
     )
   }

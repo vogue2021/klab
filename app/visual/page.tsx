@@ -43,11 +43,11 @@ export default function VisualPlatform() {
           <button
             onClick={handleBack}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            title="返回主页"
+            title="ホームページに戻る"
           >
             <ArrowLeft className="w-6 h-6 text-gray-600" />
           </button>
-          <h1 className="text-2xl font-bold">Python可视化学习平台</h1>
+          <h1 className="text-2xl font-bold">Python可視化学習プラットフォーム</h1>
         </div>
         
         <div className="flex-1 flex min-h-0">

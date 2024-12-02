@@ -20,7 +20,7 @@ export default function CodeEditor({ value, onChange }: CodeEditorProps) {
         value={value}
         onChange={handleChange}
         className="flex-1 p-4 font-mono text-sm border rounded-lg"
-        placeholder="在这里输入Python代码..."
+        placeholder="ここにPythonコードを入力してください..."
       />
     </div>
   )

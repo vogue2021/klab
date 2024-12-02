@@ -13,27 +13,27 @@ export default function Navigation({ activeTool, onToolChange }: NavigationProps
   const tools = [
     {
       id: 'flowchart',
-      name: '流程图',
+      name: 'フローチャート',
       icon: GitGraph,
-      description: '将代码转换为流程图'
+      description: 'コードをフローチャートに変換'
     },
     {
       id: 'mindmap',
-      name: '思维导图',
+      name: 'マインドマップ',
       icon: Code,
-      description: '提取代码中的知识点'
+      description: 'コードから知識ポイントを抽出'
     },
     {
       id: 'animation',
-      name: '代码动画',
+      name: 'コードアニメーション',
       icon: Play,
-      description: '动画演示代码执行过程'
+      description: 'コードの実行プロセスをアニメーションで表示'
     }
   ]
 
   return (
     <div className="h-full p-4">
-      <h2 className="text-lg font-semibold mb-4 text-gray-800">学习导航</h2>
+      <h2 className="text-lg font-semibold mb-4 text-gray-800">学習ナビ</h2>
       <div className="space-y-2">
         {tools.map((tool) => {
           const Icon = tool.icon

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { X, Play, Loader2 } from 'lucide-react'
 import Editor from '@monaco-editor/react'
 
-// 声明全局 Pyodide 类型
+// グローバル Pyodide タイプを宣言
 declare global {
   interface Window {
     loadPyodide: any
@@ -35,7 +35,7 @@ interface CodeBlockProps {
   height?: string
 }
 
-// 可运行代码块组件
+// 実行可能なコードブロックコンポーネント
 function RunnableCodeBlock({ code: initialCode, height = "200px" }: CodeBlockProps) {
   const [code, setCode] = useState(initialCode)
   const [output, setOutput] = useState('')
@@ -45,7 +45,7 @@ function RunnableCodeBlock({ code: initialCode, height = "200px" }: CodeBlockPro
   const [waitingForInput, setWaitingForInput] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // 初始化 Pyodide
+  // Pyodide を初期化
   useEffect(() => {
     async function initPyodide() {
       try {
@@ -58,7 +58,7 @@ function RunnableCodeBlock({ code: initialCode, height = "200px" }: CodeBlockPro
           indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
         })
 
-        // 初始化 Python 环境并设置模拟输入函数
+        // Python環境を初期化し、入力シミュレーション関数を設定
         await pyodide.runPythonAsync(`
           import sys
           import io
@@ -77,13 +77,13 @@ function RunnableCodeBlock({ code: initialCode, height = "200px" }: CodeBlockPro
                   return self.output
           
           def custom_input(prompt_text=""):
-              # 使用 JavaScript 的 prompt 函数获取输入
+              # JavaScriptのprompt関数を使用して入力を取得
               result = prompt(prompt_text)
               if result is None:
-                  raise EOFError("用户取消了输入")
+                  raise EOFError("ユーザーが入力をキャンセルしました")
               return result
           
-          # 初始化标准输出和错误输出
+          # 標準出力とエラー出力を初期化
           sys.stdout = CustomIO()
           sys.stderr = CustomIO()
           __builtins__.input = custom_input
@@ -92,20 +92,20 @@ function RunnableCodeBlock({ code: initialCode, height = "200px" }: CodeBlockPro
         window.pyodide = pyodide
         setPyodide(pyodide)
       } catch (error) {
-        console.error('Pyodide 初始化失败:', error)
+        console.error('Pyodide の初期化に失敗:', error)
       }
     }
     initPyodide()
   }, [])
 
-  // 处理用户输入
+  // ユーザー入力を処理
   const handleInput = async (value: string) => {
     setWaitingForInput(false)
     setInputValue('')
     return value
   }
 
-  // 运行代码
+  // コードを実行
   const runCode = async () => {
     if (!pyodide || isRunning) return
 
@@ -113,13 +113,13 @@ function RunnableCodeBlock({ code: initialCode, height = "200px" }: CodeBlockPro
     setOutput('')
 
     try {
-      // 重置输出缓冲区
+      // 出力バッファをリセット
       await pyodide.runPythonAsync(`
         sys.stdout = CustomIO()
         sys.stderr = CustomIO()
       `)
 
-      // 设置全局 prompt 函数
+      // グローバルprompt関数を設定
       ;(globalThis as any).prompt = (text: string) => {
         setOutput(prev => prev + text)
         const value = window.prompt(text)
@@ -129,20 +129,20 @@ function RunnableCodeBlock({ code: initialCode, height = "200px" }: CodeBlockPro
         return value
       }
 
-      // 运行用户代码
+      // ユーザーコードを実行
       const wrappedCode = `
 try:
     ${initialCode.split('\n').join('\n    ')}
 except Exception as e:
-    print(f"错误: {str(e)}")
+    print(f"エラー: {str(e)}")
 `
       const result = await pyodide.runPythonAsync(wrappedCode)
 
-      // 获取输出
+      // 出力を取得
       const stdout = await pyodide.runPythonAsync('sys.stdout.getvalue()')
       const stderr = await pyodide.runPythonAsync('sys.stderr.getvalue()')
 
-      // 合并输出
+      // 出力を結合
       let output = ''
       if (stdout) output += stdout
       if (stderr) output += stderr
@@ -150,19 +150,19 @@ except Exception as e:
         output += String(result)
       }
 
-      setOutput(prev => prev + (output || '代码执行成功，无输出'))
+      setOutput(prev => prev + (output || 'コードが正常に実行されました。出力はありません'))
     } catch (error) {
-      setOutput(`系统错误: ${error}`)
+      setOutput(`システムエラー: ${error}`)
     } finally {
       setIsRunning(false)
-      // 清理全局 prompt 函数
+      // グローバルprompt関数をクリーンアップ
       delete (globalThis as any).prompt
     }
   }
 
   return (
     <div className="border rounded-lg overflow-hidden">
-      {/* 代码编辑器 */}
+      {/* コードエディタ */}
       <div className="border-b">
         <Editor
           height={height}
@@ -178,7 +178,7 @@ except Exception as e:
             automaticLayout: true,
             tabSize: 4,
             wordWrap: 'on',
-            readOnly: isRunning, // 运行时禁止编辑
+            readOnly: isRunning, // 実行中は編集を禁止
             debugger: {
               enabled: false
             },
@@ -186,7 +186,7 @@ except Exception as e:
             contextmenu: false
           }}
           beforeMount={(monaco) => {
-            // 禁用一些不需要的功能
+            // 不要な機能を無効化
             monaco.editor.defineTheme('custom-dark', {
               base: 'vs-dark',
               inherit: true,
@@ -197,7 +197,7 @@ except Exception as e:
         />
       </div>
 
-      {/* 控制栏 */}
+      {/* コントロールバー */}
       <div className="bg-gray-100 px-4 py-2 flex justify-between items-center">
         <button
           onClick={runCode}
@@ -207,19 +207,19 @@ except Exception as e:
           {isRunning ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              运行中...
+              実行中...
             </>
           ) : (
             <>
               <Play className="w-4 h-4" />
-              运行代码
+              コードを実行
             </>
           )}
         </button>
-        {!pyodide && <span className="text-sm text-gray-500">正在加载 Python 环境...</span>}
+        {!pyodide && <span className="text-sm text-gray-500">Python環境を読み込み中...</span>}
       </div>
 
-      {/* 输出区域 */}
+      {/* 出力エリア */}
       {output && (
         <div className="bg-gray-900 text-white p-4 font-mono text-sm">
           <pre className="whitespace-pre-wrap">{output}</pre>
@@ -247,28 +247,28 @@ export default function PracticeLearningContent({ topic, onClose }: PracticeLear
         })
 
         if (!response.ok) {
-          throw new Error('获取内容失败')
+          throw new Error('コンテンツの取得に失敗しました')
         }
 
         const data = await response.json()
         
-        // 验证返回的数据结构
+        // 返されたデータ構造を検証
         if (!data.title || !data.introduction || !Array.isArray(data.sections)) {
-          throw new Error('返回的数据格式不正确')
+          throw new Error('返されたデータ形式が正しくありません')
         }
 
-        // 验证每个部分的内容
+        // 各セクションの内容を検証
         data.sections.forEach((section: Section, index: number) => {
           if (!section.title || !section.content || !section.codeExample || !section.explanation) {
-            throw new Error(`第 ${index + 1} 个示例的内容不完整`)
+            throw new Error(`セクション ${index + 1} の内容が不完全です`)
           }
         })
 
-        console.log('Received content:', data) // 添加日志
+        console.log('受信したコンテンツ:', data) // ログを追加
         setContent(data)
       } catch (err) {
-        console.error('加载内容失败:', err)
-        setError(err instanceof Error ? err.message : '加载内容失败')
+        console.error('コンテンツの読み込みに失敗:', err)
+        setError(err instanceof Error ? err.message : 'コンテンツの読み込みに失敗しました')
       } finally {
         setLoading(false)
       }
@@ -299,7 +299,7 @@ export default function PracticeLearningContent({ topic, onClose }: PracticeLear
               onClick={onClose}
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
-              关闭
+              閉じる
             </button>
           </div>
         </div>
@@ -325,12 +325,12 @@ export default function PracticeLearningContent({ topic, onClose }: PracticeLear
         <div className="p-6">
           {content && (
             <div className="space-y-8">
-              {/* 简短概念说明 */}
+              {/* 概念の簡単な説明 */}
               <div className="bg-blue-50 p-4 rounded-lg">
                 <p className="text-blue-800">{content.introduction}</p>
               </div>
 
-              {/* 代码示例和讲解 */}
+              {/* コード例と説明 */}
               {content.sections.map((section, index) => (
                 <div key={index} className="space-y-4 border-t pt-8 first:border-t-0 first:pt-0">
                   <h3 className="text-lg font-semibold text-gray-800">{section.title}</h3>
@@ -339,7 +339,7 @@ export default function PracticeLearningContent({ topic, onClose }: PracticeLear
                   <div className="relative">
                     <RunnableCodeBlock code={section.codeExample} />
                     <div className="absolute top-2 right-2 text-xs text-gray-500">
-                      示例 {index + 1}
+                      例 {index + 1}
                     </div>
                   </div>
                   

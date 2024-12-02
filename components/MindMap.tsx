@@ -8,21 +8,21 @@ interface MindMapNode {
   children?: MindMapNode[]
 }
 
-// 定义配色方案
+// カラースキームを定義
 const colors = {
   root: {
-    bg: '#4F46E5', // 靛蓝色
+    bg: '#4F46E5', // インディゴ
     text: '#FFFFFF'
   },
   level1: {
-    bg: '#818CF8', // 浅靛蓝色
+    bg: '#818CF8', // ライトインディゴ
     text: '#FFFFFF'
   },
   level2: {
-    bg: '#E0E7FF', // 最浅靛蓝色
+    bg: '#E0E7FF', // ペールインディゴ
     text: '#1E1B4B'
   },
-  link: '#C7D2FE' // 连接线颜色
+  link: '#C7D2FE' // 接続線の色
 }
 
 export default function MindMap({ code }: { code: string }) {
@@ -76,7 +76,7 @@ export default function MindMap({ code }: { code: string }) {
       .attr('height', '100%')
       .attr('viewBox', [0, 0, containerWidth, containerHeight])
 
-    // 添加渐变背景
+    // グラデーション背景を追加
     const defs = svg.append('defs')
     const gradient = defs.append('linearGradient')
       .attr('id', 'link-gradient')
@@ -112,7 +112,7 @@ export default function MindMap({ code }: { code: string }) {
 
     treeLayout(root)
 
-    // 绘制连接线
+    // 接続線を描画
     const links = g.append('g')
       .attr('class', 'links')
       .selectAll('path')
@@ -127,7 +127,7 @@ export default function MindMap({ code }: { code: string }) {
       .attr('stroke-width', 2)
       .attr('stroke-opacity', 0.8)
 
-    // 创建节点组
+    // ノードグループを作成
     const nodes = g.append('g')
       .attr('class', 'nodes')
       .selectAll('g')
@@ -135,7 +135,7 @@ export default function MindMap({ code }: { code: string }) {
       .join('g')
       .attr('transform', d => `translate(${d.y},${d.x})`)
 
-    // 添加节点背景
+    // ノード背景を追加
     nodes.append('rect')
       .attr('class', 'node-bg')
       .attr('rx', 8)
@@ -152,7 +152,7 @@ export default function MindMap({ code }: { code: string }) {
       .attr('width', 110)
       .attr('height', 30)
 
-    // 添加节点文本
+    // ノードテキストを追加
     const nodeTexts = nodes.append('text')
       .attr('class', 'node-text')
       .attr('dy', '0.31em')
@@ -167,7 +167,7 @@ export default function MindMap({ code }: { code: string }) {
       .attr('font-weight', d => d.depth === 0 ? '600' : '500')
       .text(d => d.data.name)
 
-    // 自动换行和调整背景框
+    // 自動改行と背景枠の調整
     nodeTexts.each(function(d) {
       const text = d3.select(this)
       const words = text.text().split(/(?<=[\u4e00-\u9fa5])|(?<=\s)|(?=\s)/)
@@ -195,7 +195,7 @@ export default function MindMap({ code }: { code: string }) {
         }
       })
 
-      // 调整背景矩形
+      // 背景の矩形を調整
       const parentNode = d3.select((this as any).parentNode)
       const rect = parentNode.select('rect')
       const textHeight = (lineNumber + 1) * lineHeight * (d.depth === 0 ? 18 : 16)
@@ -204,7 +204,7 @@ export default function MindMap({ code }: { code: string }) {
         .attr('width', d.depth === 0 ? 140 : 110)
     })
 
-    // 初始缩放以适应视图
+    // ビューに合わせて初期ズーム
     const bounds = g.node()?.getBBox()
     if (bounds) {
       const dx = bounds.width
@@ -237,7 +237,7 @@ export default function MindMap({ code }: { code: string }) {
   if (error) {
     return (
       <div className="flex items-center justify-center h-full text-red-500">
-        错误: {error}
+        エラー: {error}
       </div>
     )
   }

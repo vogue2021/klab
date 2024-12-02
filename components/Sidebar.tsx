@@ -17,11 +17,11 @@ export default function Sidebar({
   const [selectedTopic, setSelectedTopic] = useState<string>('')
 
   const topics = [
-    '变量与数据类型',
-    '条件语句',
-    '循环结构',
-    '函数基础',
-    '数组操作'
+    '変数とデータ型',
+    '条件文',
+    'ループ構造',
+    '関数の基礎',
+    '配列操作'
   ]
 
   const handleTopicClick = (topic: string) => {
@@ -51,7 +51,7 @@ export default function Sidebar({
           isCollapsed ? 'opacity-0' : 'opacity-100'
         } transition-opacity duration-300`}>
           <h2 className="text-xl font-bold text-gray-800">
-            学习主题
+            学習トピック
           </h2>
         </div>
 

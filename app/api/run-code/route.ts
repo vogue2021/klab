@@ -13,25 +13,25 @@ export async function POST(request: Request) {
       throw new Error('No code provided')
     }
 
-    // 使用 Claude 运行代码并获取结果
-    const prompt = `请运行以下 Python 代码并返回运行结果。
-    只返回代码的输出结果，不要添加任何其他解释。
-    如果代码有错误，返回错误信息。
-    如果代码没有输出，返回 "Code executed successfully with no output"。
+    // Claudeを使用してコードを実行し結果を取得
+    const prompt = `以下のPythonコードを実行し、実行結果を返してください。
+    コードの出力結果のみを返し、他の説明は追加しないでください。
+    コードにエラーがある場合は、エラーメッセージを返してください。
+    コードに出力がない場合は、"Code executed successfully with no output"を返してください。
 
-    代码：
+    コード：
     ${code}
 
-    请用以下 JSON 格式回答：
+    以下のJSON形式で回答してください：
     {
-      "output": "运行结果或错误信息"
+      "output": "実行結果またはエラーメッセージ"
     }`
 
     const message = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
       max_tokens: 1000,
       temperature: 0,
-      system: "你是一个 Python 代码执行器。你的任务是运行代码并返回结果。只返回代码的实际输出，不要添加任何评论或解释。",
+      system: "あなたはPythonコード実行者です。あなたの仕事はコードを実行して結果を返すことです。コードの実際の出力のみを返し、コメントや説明を追加しないでください。",
       messages: [{
         role: 'user',
         content: prompt
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     }
 
     try {
-      // 提取 JSON 响应
+      // JSON応答を抽出
       const text = message.content[0].text.trim()
       const jsonMatch = text.match(/\{[\s\S]*\}/)
       
@@ -59,15 +59,15 @@ export async function POST(request: Request) {
 
       return NextResponse.json({ output: data.output })
     } catch (parseError) {
-      console.error('解析输出失败:', parseError)
+      console.error('出力の解析に失敗:', parseError)
       return NextResponse.json({ output: message.content[0].text.trim() })
     }
   } catch (error) {
-    console.error('运行代码失败:', error)
+    console.error('コードの実行に失敗:', error)
     return NextResponse.json(
       { 
-        error: '运行代码失败',
-        details: error instanceof Error ? error.message : '未知错误'
+        error: 'コードの実行に失敗',
+        details: error instanceof Error ? error.message : '不明なエラー'
       },
       { status: 500 }
     )

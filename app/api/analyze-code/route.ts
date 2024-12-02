@@ -13,13 +13,13 @@ export async function POST(request: Request) {
       throw new Error('No code provided')
     }
 
-    const prompt = `你是一位幽默风趣的 Python 编程老师。请用轻松有趣的口吻解释以下 Python 代码...`
+    const prompt = `あなたはユーモアのあるPythonプログラミング講師です。以下のPythonコードを楽しく分かりやすく説明してください...`
 
     const message = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
       max_tokens: 2000,
       temperature: 0.7,
-      system: "你是一个幽默风趣的编程教师，专注于用通俗易懂的方式解释代码。",
+      system: "あなたはユーモアのあるプログラミング講師で、コードをわかりやすく説明することに特化しています。",
       messages: [{
         role: 'user',
         content: prompt
@@ -34,11 +34,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ explanation })
   } catch (error) {
-    console.error('代码分析失败:', error)
+    console.error('コード分析に失敗しました:', error)
     return NextResponse.json(
-      { error: '代码分析失败' },
+      { error: 'コード分析に失敗しました' },
       { status: 500 }
     )
   }
 }
-

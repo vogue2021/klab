@@ -36,7 +36,7 @@ export default function FloatingButton() {
     return () => document.removeEventListener('mouseup', handleSelection)
   }, [])
 
-  // 点击其他地方时隐藏按钮
+  // 他の場所をクリックしたときにボタンを非表示にする
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement
@@ -76,4 +76,4 @@ export default function FloatingButton() {
       )}
     </>
   )
-} 
+}

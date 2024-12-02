@@ -29,9 +29,9 @@ export default function VisualizationPanel({ code, tool }: VisualizationPanelPro
     <div className="h-full w-full flex flex-col">
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-gray-800">
-          {tool === 'flowchart' && '流程图可视化'}
-          {tool === 'mindmap' && '思维导图'}
-          {tool === 'animation' && '代码动画'}
+          {tool === 'flowchart' && 'フローチャート'}
+          {tool === 'mindmap' && 'マインドマップ'}
+          {tool === 'animation' && 'コードアニメーション'}
         </h2>
       </div>
       <div className="flex-1 min-h-0 bg-white rounded-lg shadow-sm overflow-hidden">

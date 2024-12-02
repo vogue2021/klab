@@ -14,48 +14,48 @@ export async function POST(request: Request) {
       throw new Error('No topic provided')
     }
 
-    // 检查缓存
+    // キャッシュを確認
     const cachedData = cache.get(topic, 'audio-content')
     if (cachedData) {
       console.log('Using cached audio content')
       return NextResponse.json(cachedData)
     }
 
-    const prompt = `作为一个Python编程教学专家，请为主题"${topic}"创建一个适合听觉学习的教学内容。
+    const prompt = `Pythonプログラミング教育の専門家として、トピック「${topic}」に関する聴覚学習に適した教育コンテンツを作成してください。
 
-    请提供以下内容：
-    1. 概念讲解：用清晰、口语化的方式解释概念
-    2. 代码示例：提供简单的示例，并解释每一步
-    3. 关键点总结：列出需要记住的要点
-    4. 练习建议：提供一些口头练习或思考题
+    以下の内容を提供してください：
+    1. 概念説明：明確で口語的な方法で概念を説明
+    2. コード例：シンプルな例を提供し、各ステップを説明
+    3. 重要ポイントのまとめ：覚えるべきポイントを列挙
+    4. 練習提案：口頭練習や考察問題を提供
 
-    要求：
-    - 使用通俗易懂的语言
-    - 避免过长的句子
-    - 多用类比和实例
-    - 适合朗读和听讲的表达方式
+    要件：
+    - わかりやすい言葉を使用
+    - 長い文を避ける
+    - 比喩や実例を多用
+    - 朗読や講義に適した表現方法
 
-    请用中文回答，并按以下JSON格式组织内容：
+    日本語で回答し、以下のJSON形式でコンテンツを構成してください：
     {
-      "title": "主题标题",
-      "introduction": "简短介绍",
+      "title": "トピックタイトル",
+      "introduction": "簡単な紹介",
       "sections": [
         {
-          "title": "章节标题",
-          "content": "章节内容",
-          "codeExample": "代码示例（如果有）",
-          "explanation": "代码解释（如果有）"
+          "title": "セクションタイトル",
+          "content": "セクション内容",
+          "codeExample": "コード例（該当する場合）",
+          "explanation": "コードの説明（該当する場合）"
         }
       ],
-      "keyPoints": ["关键点1", "关键点2", ...],
-      "exercises": ["练习1", "练习2", ...]
+      "keyPoints": ["重要ポイント1", "重要ポイント2", ...],
+      "exercises": ["練習1", "練習2", ...]
     }`
 
     const message = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
       max_tokens: 4000,
       temperature: 0.7,
-      system: "你是一个编程教育专家，专注于创建适合听觉学习的教学内容。请生成清晰、易于理解的解释和示例。",
+      system: "あなたはプログラミング教育の専門家で、聴覚学習に適した教育コンテンツの作成に特化しています。明確で理解しやすい説明と例を生成してください。",
       messages: [
         {
           role: 'user',
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
       throw new Error('Empty response from Anthropic')
     }
 
-    // 清理响应文本，确保只包含JSON
+    // レスポンステキストを整理し、JSONのみを含むようにする
     let cleanedResponse = message.content[0].text.trim()
     if (cleanedResponse.includes('```json')) {
       cleanedResponse = cleanedResponse.split('```json')[1].split('```')[0].trim()
@@ -76,17 +76,17 @@ export async function POST(request: Request) {
       cleanedResponse = cleanedResponse.split('```')[1].trim()
     }
 
-    // 解析JSON
+    // JSONを解析
     const audioContent = JSON.parse(cleanedResponse)
 
-    // 存入缓存
+    // キャッシュに保存
     cache.set(topic, 'audio-content', audioContent)
     
     return NextResponse.json(audioContent)
   } catch (error) {
-    console.error('音频内容生成错误:', error)
+    console.error('オーディオコンテンツ生成エラー:', error)
     return NextResponse.json(
-      { error: '生成教学内容失败' },
+      { error: '教育コンテンツの生成に失敗しました' },
       { status: 500 }
     )
   }

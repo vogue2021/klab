@@ -14,66 +14,66 @@ export async function POST(request: Request) {
       max_tokens: 4000,
       messages: [{
         role: "user",
-        content: `作为编程教育专家，请为Python初学者生成一份关于"${topic}"的学习内容。
-                 对于流程图可视化，请确保返回以下节点：
-                 - start (开始节点)
-                 - condition (条件判断节点)
-                 - true_block (条件为真时执行的代码块)
-                 - false_block (条件为假时执行的代码块)
-                 - end (结束节点)
+        content: `プログラミング教育の専門家として、Pythonの初心者向けに「${topic}」についての学習コンテンツを生成してください。
+                 フローチャートの視覚化については、以下のノードを必ず含めてください：
+                 - start (開始ノード)
+                 - condition (条件判断ノード)
+                 - true_block (条件が真の時に実行されるコードブロック)
+                 - false_block (条件が偽の時に実行されるコードブロック)
+                 - end (終了ノード)
                  
-                 每个节点都应该有合适的中文标签。
-                 连接线应该标注条件判断结果（True/False）。
+                 各ノードには適切な日本語のラベルを付けてください。
+                 接続線には条件判断結果（True/False）を表示してください。
                  
-                 请严格按照以下JSON格式返回（不要添加任何其他文本）：
+                 以下のJSON形式で厳密に返してください（他のテキストは追加しないでください）：
                  {
                    "concept": {
-                     "explanation": "概念解释文本",
+                     "explanation": "概念説明テキスト",
                      "visualization": {
-                       "type": "图表类型，如 force-directed, tree, flowchart 等",
+                       "type": "グラフタイプ（force-directed, tree, flowchartなど）",
                        "nodes": [
                          {
-                           "id": "唯一标识",
-                           "label": "显示文本",
-                           "type": "节点类型，如 concept, example, detail 等",
-                           "description": "悬停时显示的详细解释"
+                           "id": "一意の識別子",
+                           "label": "表示テキスト",
+                           "type": "ノードタイプ（concept, example, detailなど）",
+                           "description": "ホバー時に表示される詳細説明"
                          }
                        ],
                        "links": [
                          {
-                           "source": "源节点id",
-                           "target": "目标节点id",
-                           "label": "关系说明（可选）"
+                           "source": "ソースノードid",
+                           "target": "ターゲットノードid",
+                           "label": "関係の説明（オプション）"
                          }
                        ]
                      }
                    },
                    "examples": [
                      {
-                       "code": "示例代码",
-                       "explanation": "代码解释",
-                       "output": "代码输出"
+                       "code": "サンプルコード",
+                       "explanation": "コードの説明",
+                       "output": "コードの出力"
                      }
                    ],
                    "exercises": [
                      {
-                       "question": "练习题目",
-                       "hints": ["提示1", "提示2"],
-                       "solution": "参考答案"
+                       "question": "練習問題",
+                       "hints": ["ヒント1", "ヒント2"],
+                       "solution": "参考解答"
                      }
                    ]
                  }
                  
-                 请确保：
-                 1. 概念可视化数据结构要适合用D3.js展示
-                 2. 节点和连接的数据要有意义且易于理解
-                 3. 内容要简单易懂，适合初学者
-                 4. 严格按照JSON格式返回`
+                 以下を確認してください：
+                 1. 概念の視覚化データ構造はD3.jsでの表示に適していること
+                 2. ノードと接続のデータは意味があり理解しやすいこと
+                 3. コンテンツは簡単で初心者向けであること
+                 4. 厳密にJSON形式で返すこと`
       }],
       temperature: 0.7,
     })
 
-    // 处理返回内容
+    // レスポンスの処理
     let content = response.content[0].text.trim()
     if (content.startsWith('```json')) {
       content = content.slice(7)
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Generate learning content error:', error)
     return NextResponse.json(
-      { error: '生成内容失败' },
+      { error: 'コンテンツの生成に失敗しました' },
       { status: 500 }
     )
   }

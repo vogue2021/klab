@@ -26,55 +26,55 @@ export async function POST(request: Request) {
       throw new Error('No topic provided')
     }
 
-    const prompt = `你是一位 Python 编程教师。请为主题"${topic}"创建一个实践教学内容。
+    const prompt = `あなたはPythonのプログラミング講師です。トピック「${topic}」の実践的な教育コンテンツを作成してください。
     
-    请严格按照以下 JSON 格式回答，不要添加任何其他内容：
+    以下のJSON形式で厳密に回答してください。他の内容は追加しないでください：
 
     {
       "title": "${topic}",
-      "introduction": "这里写一个不超过100字的概念说明",
+      "introduction": "ここに100文字以内の概念説明を書いてください",
       "sections": [
         {
-          "title": "示例1：基础用法",
-          "content": "这里写示例说明",
-          "codeExample": "# 完整的可运行代码",
-          "explanation": "这里写代码讲解，必须与代码示例完全对应"
+          "title": "例題1：基本的な使い方",
+          "content": "ここに例題の説明を書いてください",
+          "codeExample": "# 完全な実行可能なコード",
+          "explanation": "ここにコードの解説を書いてください。必ずコード例と完全に対応させてください"
         }
       ]
     }
 
-    要求：
-    1. 概念说明简短清晰（不超过100字）
-    2. 提供2-3个循序渐进的代码示例
-    3. 每个示例必须包含：
-       - 清晰的标题（示例1/2/3：具体主题）
-       - 简短的示例说明
-       - 完整的可运行代码
-       - 与代码完全对应的详细解释
-    4. 代码示例要求：
-       - 必须是完整的、可以直接运行的代码
-       - 使用英文变量名和输出
-       - 包含适当的注释
-       - 代码长度适中（5-10行）
-    5. 示例难度递增：
-       - 示例1：基础概念演示
-       - 示例2：基本应用
-       - 示例3：综合运用
-    6. 确保每个示例的代码和解释严格对应
-    7. 所有示例必须相互独立，可以单独运行
-    8. 避免示例之间的代码重复
+    要件：
+    1. 概念説明は簡潔明瞭に（100文字以内）
+    2. 2-3個の段階的なコード例を提供
+    3. 各例題には以下を含める：
+       - 明確なタイトル（例題1/2/3：具体的なトピック）
+       - 簡潔な例題説明
+       - 完全な実行可能なコード
+       - コードと完全に対応する詳細な説明
+    4. コード例の要件：
+       - 完全で直接実行可能なコード
+       - 英語の変数名と出力を使用
+       - 適切なコメントを含む
+       - 適度なコードの長さ（5-10行）
+    5. 例題は難易度順に：
+       - 例題1：基本概念のデモ
+       - 例題2：基本的な応用
+       - 例題3：総合的な活用
+    6. 各例題のコードと説明が厳密に対応していることを確認
+    7. すべての例題は独立して実行可能
+    8. 例題間のコードの重複を避ける
 
-    注意：确保生成的是合法的 JSON 格式，且代码中的换行使用 \\n 转义。`
+    注意：生成されるJSONは有効な形式であり、コード内の改行は \\n でエスケープしてください。`
 
     const message = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
       max_tokens: 2000,
       temperature: 0.3,
-      system: `你是一个专注于实践教学的Python编程教师。
-      你必须生成完全合法的JSON格式内容。
-      每个示例必须包含完整且独立的可运行代码。
-      代码示例和解释必须严格对应。
-      示例之间必须循序渐进且相互独立。`,
+      system: `あなたは実践的な教育に焦点を当てたPythonプログラミング講師です。
+      完全に有効なJSON形式のコンテンツを生成する必要があります。
+      各例題は完全で独立した実行可能なコードを含む必要があります。
+      コード例と説明は厳密に対応している必要があります。
+      例題は段階的で相互に独立している必要があります。`,
       messages: [{
         role: 'user',
         content: prompt
@@ -85,14 +85,14 @@ export async function POST(request: Request) {
       throw new Error('Empty response from Anthropic')
     }
 
-    // 清理和验证 JSON
+    // JSONのクリーニングと検証
     try {
       const text = message.content[0].text.trim()
       
-      // 记录原始响应以便调试
+      // デバッグ用に元のレスポンスを記録
       console.log('AI Response:', text)
 
-      // 尝试提取 JSON
+      // JSONの抽出を試みる
       const jsonMatch = text.match(/\{[\s\S]*\}/)
       if (!jsonMatch) {
         console.error('No JSON found in response:', text)
@@ -102,16 +102,16 @@ export async function POST(request: Request) {
       const jsonText = jsonMatch[0]
       console.log('Extracted JSON:', jsonText)
 
-      // 解析 JSON
+      // JSONの解析
       const content = JSON.parse(jsonText) as Content
 
-      // 验证内容结构
+      // コンテンツ構造の検証
       if (!content.title || !content.introduction || !Array.isArray(content.sections)) {
         console.error('Invalid content structure:', content)
         throw new Error('Invalid content structure')
       }
 
-      // 验证每个部分
+      // 各セクションの検証
       content.sections.forEach((section: Section, index: number) => {
         if (!section.title || !section.content || !section.codeExample || !section.explanation) {
           console.error(`Invalid section at index ${index}:`, section)
@@ -119,7 +119,7 @@ export async function POST(request: Request) {
         }
       })
 
-      // 清理代码示例中的转义字符
+      // コード例のエスケープ文字をクリーニング
       content.sections = content.sections.map(section => ({
         ...section,
         codeExample: section.codeExample
@@ -137,11 +137,11 @@ export async function POST(request: Request) {
       throw new Error(`Invalid JSON format in response: ${errorMessage}`)
     }
   } catch (error) {
-    console.error('生成教学内容失败:', error)
+    console.error('教育コンテンツの生成に失敗:', error)
     return NextResponse.json(
       { 
-        error: '生成教学内容失败', 
-        details: error instanceof Error ? error.message : '未知错误',
+        error: '教育コンテンツの生成に失敗', 
+        details: error instanceof Error ? error.message : '不明なエラー',
         timestamp: new Date().toISOString()
       },
       { status: 500 }

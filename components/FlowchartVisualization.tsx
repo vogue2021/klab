@@ -29,7 +29,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
   const svgRef = useRef<SVGSVGElement | null>(null)
   const [analysis, setAnalysis] = useState<string>('')
 
-  // 添加节点类型和颜色配置
+  // ノードタイプと色の設定を追加
   const nodeStyles = {
     start: {
       fill: '#4CAF50',
@@ -84,15 +84,15 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
   const renderFlowchart = (nodes: Node[], links: Link[]) => {
     if (!containerRef.current) return
 
-    // 清空容器
+    // コンテナをクリア
     containerRef.current.innerHTML = ''
 
-    // 设置画布尺寸
+    // キャンバスサイズを設定
     const width = containerRef.current.clientWidth
     const height = containerRef.current.clientHeight
     const margin = { top: 20, right: 20, bottom: 50, left: 20 }
 
-    // 创建SVG
+    // SVGを作成
     const svg = d3.select(containerRef.current)
       .append('svg')
       .attr('width', width)
@@ -101,9 +101,9 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
     
     svgRef.current = svg.node()
 
-    // 创建缩放行为
+    // ズーム動作を作成
     const zoom = d3.zoom()
-      .scaleExtent([0.1, 4]) // 设置缩放范围
+      .scaleExtent([0.1, 4]) // ズーム範囲を設定
       .on('zoom', (event) => {
         g.attr('transform', event.transform)
         setTransform(event.transform)
@@ -111,23 +111,23 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
 
     svg.call(zoom as any)
 
-    // 创建主要的图形容器
+    // メイングラフィックコンテナを作成
     const g = svg.append('g')
       .attr('class', 'graph-container')
 
-    // 创建力导向图布局
+    // フォースレイアウトを作成
     const simulation = d3.forceSimulation(nodes as any)
       .force('link', d3.forceLink(links).id((d: any) => d.id).distance(150))
       .force('charge', d3.forceManyBody().strength(-500))
       .force('center', d3.forceCenter(width / 2, height / 2))
 
-    // 绘制连接线
+    // リンクを描画
     const link = g.append('g')
       .selectAll('g')
       .data(links)
       .join('g')
 
-    // 添加连接线路径
+    // リンクパスを追加
     link.append('path')
       .attr('class', 'link')
       .attr('stroke', '#999')
@@ -135,7 +135,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
       .attr('fill', 'none')
       .attr('marker-end', 'url(#arrowhead)')
 
-    // 添加连接线标签
+    // リンクラベルを追加
     link.append('text')
       .attr('class', 'link-label')
       .attr('text-anchor', 'middle')
@@ -144,7 +144,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
       .style('fill', '#666')
       .style('font-size', '12px')
 
-    // 创建节点
+    // ノードを作成
     const node = g.append('g')
       .selectAll('.node')
       .data(nodes)
@@ -156,7 +156,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
         .on('end', dragEnded)
       )
 
-    // 根据节点类型渲染不同的形状
+    // ノードタイプに基づいて異なる形状を描画
     node.each(function(d: any) {
       const nodeGroup = d3.select(this)
       const style = nodeStyles[d.type || 'process']
@@ -213,7 +213,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
             .attr('class', 'node-shape')
       }
 
-      // 添加发光效果（用于重要节点）
+      // 発光効果を追加（重要なノード用）
       if (d.important) {
         const glow = nodeGroup.append('filter')
           .attr('id', `glow-${d.id}`)
@@ -236,7 +236,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
           .style('filter', `url(#glow-${d.id})`)
       }
 
-      // 添加文本
+      // テキストを追加
       const text = nodeGroup.append('text')
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', 'middle')
@@ -246,11 +246,11 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
         .attr('pointer-events', 'none')
         .text(d.label)
 
-      // 文本换行处理
+      // テキストの折り返し処理
       wrap(text, style.width || 100)
     })
 
-    // 添加箭头标记
+    // 矢印マーカーを追加
     svg.append('defs').append('marker')
       .attr('id', 'arrowhead')
       .attr('viewBox', '-0 -5 10 10')
@@ -263,7 +263,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
       .attr('d', 'M 0,-5 L 10,0 L 0,5')
       .attr('fill', '#999')
 
-    // 更新力导向图
+    // フォースレイアウトを更新
     simulation.on('tick', () => {
       link.select('path')
         .attr('d', (d: any) => {
@@ -283,7 +283,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
       node.attr('transform', (d: any) => `translate(${d.x},${d.y})`)
     })
 
-    // 拖拽函数
+    // ドラッグ関数
     function dragStarted(event: any) {
       if (!event.active) simulation.alphaTarget(0.3).restart()
       event.subject.fx = event.subject.x
@@ -301,7 +301,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
       event.subject.fy = null
     }
 
-    // 文本换行函数
+    // テキスト折り返し関数
     function wrap(text: any, width: number) {
       text.each(function() {
         const text = d3.select(this)
@@ -335,7 +335,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
     }
   }
 
-  // 添加缩放控制函数
+  // ズーム制御関数を追加
   const handleZoom = (direction: 'in' | 'out') => {
     if (!svgRef.current) return
 
@@ -355,7 +355,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
       )
   }
 
-  // 添加重置缩放函数
+  // ズームリセット関数を追加
   const handleResetZoom = () => {
     if (!svgRef.current) return
 
@@ -370,7 +370,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
       )
   }
 
-  // 处理代码分析和流程图生成
+  // コード分析とフローチャート生成を処理
   useEffect(() => {
     const analyzeCode = async () => {
       if (!code.trim()) return
@@ -387,24 +387,24 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
         const data = await response.json()
 
         if (!response.ok) {
-          throw new Error(data.error || '代码分析失败')
+          throw new Error(data.error || 'コード分析に失敗しました')
         }
 
         if (!data.nodes || !data.links) {
-          throw new Error('流程图数据格式错误')
+          throw new Error('フローチャートデータの形式が正しくありません')
         }
 
-        // 保存 AI 分析结果
+        // AI分析結果を保存
         if (data.analysis) {
           setAnalysis(data.analysis)
         }
 
-        // 渲染流程图
+        // フローチャートを描画
         renderFlowchart(data.nodes, data.links)
 
       } catch (err) {
         console.error('Flowchart error:', err)
-        setError(err instanceof Error ? err.message : '生成流程图失败')
+        setError(err instanceof Error ? err.message : 'フローチャートの生成に失敗しました')
       } finally {
         setLoading(false)
       }
@@ -414,7 +414,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
     return () => clearTimeout(debounceTimeout)
   }, [code])
 
-  // 辅助函数：创建六边形路径
+  // ヘルパー関数：六角形のパスを作成
   function createHexagonPath(width: number, height: number) {
     const w = width / 2
     const h = height / 2
@@ -423,7 +423,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
 
   return (
     <div className="relative h-full flex flex-col bg-white rounded-lg p-4 gap-4">
-      {/* 流程图区域 */}
+      {/* フローチャートエリア */}
       <div className="flex-1 min-h-[400px] border border-gray-200 rounded-lg shadow-sm">
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
@@ -439,7 +439,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
                 onClick={() => setError(null)}
                 className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               >
-                重试
+                再試行
               </button>
             </div>
           </div>
@@ -450,12 +450,12 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
               className="w-full h-full overflow-hidden bg-gray-50 rounded-lg"
             />
             
-            {/* 缩放控制面板 */}
+            {/* ズーム制御パネル */}
             <div className="absolute bottom-4 right-4 flex flex-col gap-2 bg-white rounded-lg shadow-lg">
               <button
                 onClick={() => handleZoom('in')}
                 className="p-2 hover:bg-gray-100 rounded-t-lg transition-colors"
-                title="放大"
+                title="拡大"
               >
                 <Plus className="w-5 h-5" />
               </button>
@@ -463,7 +463,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
               <button
                 onClick={() => handleZoom('out')}
                 className="p-2 hover:bg-gray-100 transition-colors"
-                title="缩小"
+                title="縮小"
               >
                 <Minus className="w-5 h-5" />
               </button>
@@ -471,13 +471,13 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
               <button
                 onClick={handleResetZoom}
                 className="p-2 hover:bg-gray-100 rounded-b-lg transition-colors text-xs"
-                title="重置缩放"
+                title="ズームをリセット"
               >
-                重置
+                リセット
               </button>
             </div>
 
-            {/* 缩放比例显示 */}
+            {/* ズーム比率表示 */}
             <div className="absolute top-4 right-4 bg-white px-2 py-1 rounded-md shadow-sm text-sm text-gray-600">
               {Math.round(transform.k * 100)}%
             </div>
@@ -485,35 +485,35 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
         )}
       </div>
 
-      {/* AI 分析结果显示区域 */}
+      {/* AI分析結果表示エリア */}
       {analysis && (
         <div className="border border-gray-200 rounded-lg shadow-sm bg-white">
           <div className="p-3 border-b border-gray-200 bg-gray-50">
-            <h3 className="text-lg font-semibold text-gray-800">代码分析</h3>
+            <h3 className="text-lg font-semibold text-gray-800">コード分析</h3>
           </div>
           <div className="p-4 max-h-[300px] overflow-y-auto custom-scrollbar">
             <div className="prose prose-sm max-w-none">
               {analysis.split('\n').map((line, index) => {
-                // 处理代码块
+                // コードブロックを処理
                 if (line.includes('`')) {
                   return (
                     <p key={index} className="my-1">
                       {line.split('`').map((part, i) => {
                         if (i % 2 === 1) {
-                          // 代码部分
+                          // コード部分
                           return (
                             <code key={i} className="px-1.5 py-0.5 bg-gray-100 rounded text-sm font-mono text-blue-600">
                               {part}
                             </code>
                           )
                         }
-                        // 普通文本部分
+                        // 通常テキスト部分
                         return <span key={i}>{part}</span>
                       })}
                     </p>
                   )
                 }
-                // 处理标题行
+                // 見出し行を処理
                 if (line.match(/^[1-9]\./) || line.includes('：')) {
                   return (
                     <h4 key={index} className="font-semibold mt-3 mb-2 text-gray-800">
@@ -521,7 +521,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
                     </h4>
                   )
                 }
-                // 普通文本行
+                // 通常テキスト行
                 return (
                   <p key={index} className="my-1 text-gray-700">
                     {line}
@@ -536,7 +536,7 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
   )
 }
 
-// 添加到全局样式文件 (globals.css)
+// グローバルスタイルファイルに追加 (globals.css)
 /*
 .custom-scrollbar {
   scrollbar-width: thin;
@@ -558,4 +558,3 @@ export default function FlowchartVisualization({ code }: FlowchartVisualizationP
   border: 2px solid #EDF2F7;
 }
 */
-

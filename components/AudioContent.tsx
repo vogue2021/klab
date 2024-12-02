@@ -37,7 +37,7 @@ export default function AudioContent({ topic, onClose }: AudioContentProps) {
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
 
-  // 获取内容
+  // コンテンツを取得
   const fetchContent = async () => {
     setLoading(true)
     setError(null)
@@ -49,30 +49,30 @@ export default function AudioContent({ topic, onClose }: AudioContentProps) {
       })
 
       if (!response.ok) {
-        throw new Error('获取内容失败')
+        throw new Error('コンテンツの取得に失敗しました')
       }
 
       const data = await response.json()
       setContent(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : '加载失败')
+      setError(err instanceof Error ? err.message : '読み込みに失敗しました')
     } finally {
       setLoading(false)
     }
   }
 
-  // 首次加载时获取内容
+  // 初回読み込み時にコンテンツを取得
   useState(() => {
     fetchContent()
   }, [topic])
 
-  // 处理语音转文字结果
+  // 音声テキスト変換の結果を処理
   const handleTranscription = (text: string) => {
     setUserQuestion(text)
-    // 这里可以添加其他处理逻辑，比如自动提交问题等
+    // ここで他の処理を追加できます（例：質問の自動送信など）
   }
 
-  // 获取语音内容
+  // 音声コンテンツを取得
   const fetchAudio = async (content: string) => {
     setIsLoading(true)
     try {
@@ -83,14 +83,14 @@ export default function AudioContent({ topic, onClose }: AudioContentProps) {
       })
 
       if (!response.ok) {
-        throw new Error('获取语音失败')
+        throw new Error('音声の取得に失敗しました')
       }
 
       const blob = await response.blob()
       const url = URL.createObjectURL(blob)
       setAudioUrl(url)
       
-      // 创建音频元素
+      // オーディオ要素を作成
       if (!audioRef.current) {
         audioRef.current = new Audio(url)
         audioRef.current.addEventListener('timeupdate', handleTimeUpdate)
@@ -99,13 +99,13 @@ export default function AudioContent({ topic, onClose }: AudioContentProps) {
         audioRef.current.src = url
       }
     } catch (err) {
-      console.error('加载音频失败:', err)
+      console.error('音声の読み込みに失敗しました:', err)
     } finally {
       setIsLoading(false)
     }
   }
 
-  // 处理播放/暂停
+  // 再生/一時停止を処理
   const togglePlay = () => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -117,28 +117,28 @@ export default function AudioContent({ topic, onClose }: AudioContentProps) {
     }
   }
 
-  // 更新进度条
+  // プログレスバーを更新
   const handleTimeUpdate = () => {
     if (audioRef.current) {
       setCurrentTime(audioRef.current.currentTime)
     }
   }
 
-  // 获取音频总时长
+  // オーディオの総時間を取得
   const handleLoadedMetadata = () => {
     if (audioRef.current) {
       setDuration(audioRef.current.duration)
     }
   }
 
-  // 格式化时间
+  // 時間をフォーマット
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60)
     const seconds = Math.floor(time % 60)
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
-  // 处理进度条点击
+  // プログレスバーのクリックを処理
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (audioRef.current) {
       const rect = e.currentTarget.getBoundingClientRect()
@@ -150,14 +150,14 @@ export default function AudioContent({ topic, onClose }: AudioContentProps) {
     }
   }
 
-  // 内容变化时获取新的音频
+  // コンテンツが変更されたら新しい音声を取得
   useEffect(() => {
     if (content) {
       fetchAudio(content.introduction)
     }
   }, [content])
 
-  // 组件卸载时清理
+  // コンポーネントのアンマウント時にクリーンアップ
   useEffect(() => {
     return () => {
       if (audioRef.current) {
@@ -170,7 +170,7 @@ export default function AudioContent({ topic, onClose }: AudioContentProps) {
     }
   }, [audioUrl])
 
-  // 修改播放控制栏
+  // 再生コントロールバーを修正
   const renderPlayControls = () => (
     <div className="sticky top-0 bg-white shadow p-4 mb-6 rounded-lg">
       <div className="flex items-center gap-4 mb-2">
@@ -215,7 +215,7 @@ export default function AudioContent({ topic, onClose }: AudioContentProps) {
   if (error) {
     return (
       <div className="text-red-500 p-4">
-        错误: {error}
+        エラー: {error}
       </div>
     )
   }
@@ -230,10 +230,10 @@ export default function AudioContent({ topic, onClose }: AudioContentProps) {
         <h1 className="text-3xl font-bold mb-4">{content.title}</h1>
         {renderPlayControls()}
 
-        {/* 内容区域 */}
+        {/* コンテンツエリア */}
         <div className="space-y-8">
           <section>
-            <h2 className="text-xl font-semibold mb-2">简介</h2>
+            <h2 className="text-xl font-semibold mb-2">はじめに</h2>
             <p className="text-gray-700">{content.introduction}</p>
           </section>
 
@@ -255,7 +255,7 @@ export default function AudioContent({ topic, onClose }: AudioContentProps) {
           ))}
 
           <section>
-            <h2 className="text-xl font-semibold mb-2">关键要点</h2>
+            <h2 className="text-xl font-semibold mb-2">重要なポイント</h2>
             <ul className="list-disc list-inside space-y-2">
               {content.keyPoints.map((point, index) => (
                 <li key={index} className="text-gray-700">{point}</li>
@@ -264,7 +264,7 @@ export default function AudioContent({ topic, onClose }: AudioContentProps) {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mb-2">练习</h2>
+            <h2 className="text-xl font-semibold mb-2">練習問題</h2>
             <ul className="list-decimal list-inside space-y-2">
               {content.exercises.map((exercise, index) => (
                 <li key={index} className="text-gray-700">{exercise}</li>
@@ -273,15 +273,15 @@ export default function AudioContent({ topic, onClose }: AudioContentProps) {
           </section>
         </div>
 
-        {/* 添加语音输入部分 */}
+        {/* 音声入力部分を追加 */}
         <div className="fixed bottom-4 right-4 bg-white p-4 rounded-lg shadow-lg">
           <div className="mb-4">
-            <h3 className="text-lg font-semibold mb-2">语音提问</h3>
+            <h3 className="text-lg font-semibold mb-2">音声で質問</h3>
             <AudioRecorder onTranscription={handleTranscription} />
           </div>
           {userQuestion && (
             <div className="mt-2">
-              <p className="text-sm text-gray-600">识别结果：</p>
+              <p className="text-sm text-gray-600">認識結果：</p>
               <p className="text-gray-800">{userQuestion}</p>
             </div>
           )}

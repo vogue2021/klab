@@ -19,7 +19,7 @@ export default function VisualizationToolbar({
         }`}
         onClick={() => onToolChange('flowchart')}
       >
-        流程图
+        フローチャート
       </button>
       <button
         className={`px-4 py-2 rounded ${
@@ -27,7 +27,7 @@ export default function VisualizationToolbar({
         }`}
         onClick={() => onToolChange('mindmap')}
       >
-        思维导图
+        マインドマップ
       </button>
       <button
         className={`px-4 py-2 rounded ${
@@ -35,7 +35,7 @@ export default function VisualizationToolbar({
         }`}
         onClick={() => onToolChange('animation')}
       >
-        动画演示
+        アニメーション
       </button>
     </div>
   )

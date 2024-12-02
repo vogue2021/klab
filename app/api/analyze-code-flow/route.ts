@@ -21,27 +21,27 @@ export async function POST(request: Request) {
   try {
     const { code } = await request.json()
 
-    // 首先用 AI 分析代码
-    const prompt = `你是一位 Python 编程老师。请分析以下 Python 代码，并提供：
-    1. 代码的主要功能和目的（一句话概括）
-    2. 代码的执行流程，用简单的步骤列出（每步不超过10个字）
-    3. 详细解释：
-       - 关键函数的作用
-       - 重要变量的含义
-       - 核心算法的思路
+    // まずAIでコードを分析する
+    const prompt = `あなたはPythonのプログラミング講師です。以下のPythonコードを分析し、以下を提供してください：
+    1. コードの主な機能と目的（一文で要約）
+    2. コードの実行フロー、簡単なステップで列挙（各ステップ10文字以内）
+    3. 詳細な説明：
+       - 重要な関数の役割
+       - 重要な変数の意味
+       - コアアルゴリズムの考え方
     
-    请在解释中用 \`代码\` 标记代码片段，确保解释清晰易懂。
+    説明では\`コード\`でコード片をマークし、説明が明確で分かりやすいことを確認してください。
 
-    代码：
+    コード：
     ${code}
 
-    请用中文回答，注意保持格式规范。`
+    日本語で回答し、フォーマットを適切に保ってください。`
 
     const aiResponse = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
       max_tokens: 2000,
       temperature: 0.7,
-      system: "你是一个编程教育专家，专注于帮助初学者理解代码流程。",
+      system: "あなたはプログラミング教育の専門家で、初心者がコードの流れを理解するのを支援することに特化しています。",
       messages: [{
         role: 'user',
         content: prompt
@@ -49,25 +49,25 @@ export async function POST(request: Request) {
     })
 
     if (!aiResponse.content[0]?.text) {
-      throw new Error('AI 分析失败')
+      throw new Error('AI分析に失敗しました')
     }
 
     const analysis = aiResponse.content[0].text
 
-    // 基于 AI 分析结果生成流程图
+    // AI分析結果に基づいてフローチャートを生成
     const { nodes, links } = generateFlowchart(code, analysis)
 
     return NextResponse.json({ 
       nodes,
       links,
-      analysis, // 同时返回 AI 分析结果
+      analysis, // AI分析結果も返す
       success: true 
     })
 
   } catch (error) {
     console.error('Error:', error)
     return NextResponse.json({ 
-      error: '生成流程图失败',
+      error: 'フローチャートの生成に失敗しました',
       success: false 
     }, { 
       status: 500 
@@ -76,41 +76,41 @@ export async function POST(request: Request) {
 }
 
 function generateFlowchart(code: string, analysis: string): { nodes: Node[], links: Link[] } {
-  // 基本节点
+  // 基本ノード
   const nodes: Node[] = [
-    { id: 'start', label: '开始', type: 'start' }
+    { id: 'start', label: '開始', type: 'start' }
   ]
   const links: Link[] = []
   let lastNodeId = 'start'
   let nodeCounter = 1
 
-  // 从 AI 分析中提取关键步骤
+  // AI分析から重要なステップを抽出
   const steps = extractStepsFromAnalysis(analysis)
   
-  // 分析代码
+  // コードを分析
   const lines = code.split('\n').filter(line => line.trim())
   
   function simplifyLabel(text: string): string {
-    // 简化函数定义
+    // 関数定義を簡略化
     if (text.includes('def ')) {
-      return text.split('(')[0].replace('def ', '函数: ')
+      return text.split('(')[0].replace('def ', '関数: ')
     }
-    // 简化条件判断
+    // 条件判断を簡略化
     if (text.includes('if ')) {
       return text.replace(/if\s+/, '判断: ').split(':')[0]
     }
-    // 简化循环
+    // ループを簡略化
     if (text.includes('while ')) {
-      return text.replace(/while\s+/, '循环: ').split(':')[0]
+      return text.replace(/while\s+/, 'ループ: ').split(':')[0]
     }
     if (text.includes('for ')) {
-      return text.replace(/for\s+/, '循环: ').split(':')[0]
+      return text.replace(/for\s+/, 'ループ: ').split(':')[0]
     }
-    // 简化返回语句
+    // 戻り値を簡略化
     if (text.includes('return ')) {
-      return '返回: ' + text.replace('return ', '')
+      return '戻り値: ' + text.replace('return ', '')
     }
-    // 其他语句保持简短
+    // その他の文は短く保つ
     return text.length > 15 ? text.slice(0, 15) + '...' : text
   }
 
@@ -131,13 +131,13 @@ function generateFlowchart(code: string, analysis: string): { nodes: Node[], lin
         type: 'condition'
       })
       
-      // 添加条件分支
+      // 条件分岐を追加
       const trueId = `node${nodeCounter + 1}`
       const falseId = `node${nodeCounter + 2}`
       
       nodes.push(
-        { id: trueId, label: '执行True分支', type: 'process' },
-        { id: falseId, label: '执行False分支', type: 'process' }
+        { id: trueId, label: 'True分岐を実行', type: 'process' },
+        { id: falseId, label: 'False分岐を実行', type: 'process' }
       )
       
       links.push(
@@ -149,13 +149,13 @@ function generateFlowchart(code: string, analysis: string): { nodes: Node[], lin
     } else if (line.includes('while ') || line.includes('for ')) {
       nodes.push({
         id: currentId,
-        label: `循环\n${step || line.trim()}`,
+        label: `ループ\n${step || line.trim()}`,
         type: 'loop'
       })
     } else {
       nodes.push({
         id: currentId,
-        label: step || line.trim(), // 使用 AI 解释或原始代码
+        label: step || line.trim(), // AI解説または元のコードを使用
         type: 'process'
       })
     }
@@ -169,24 +169,24 @@ function generateFlowchart(code: string, analysis: string): { nodes: Node[], lin
     nodeCounter++
   })
 
-  // 添加结束节点
+  // 終了ノードを追加
   const endId = `node${nodeCounter}`
-  nodes.push({ id: endId, label: '结束', type: 'end' })
+  nodes.push({ id: endId, label: '終了', type: 'end' })
   links.push({ source: lastNodeId, target: endId })
 
   return { nodes, links }
 }
 
 function extractStepsFromAnalysis(analysis: string): string[] {
-  // 从 AI 分析文本中提取步骤说明
-  // 这里可以根据实际的 AI 输出格式进行调整
+  // AI分析テキストからステップ説明を抽出
+  // AIの出力フォーマットに応じて調整可能
   const steps: string[] = []
   const lines = analysis.split('\n')
   
   lines.forEach(line => {
-    if (line.includes('步骤') || line.includes('第') || line.includes('.')) {
-      // 提取步骤说明，去除序号和多余空格
-      const step = line.replace(/^[0-9.、步骤]*/, '').trim()
+    if (line.includes('ステップ') || line.includes('第') || line.includes('.')) {
+      // ステップ説明を抽出し、番号と余分な空白を削除
+      const step = line.replace(/^[0-9.、ステップ]*/, '').trim()
       if (step) {
         steps.push(step)
       }

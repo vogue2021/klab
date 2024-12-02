@@ -13,42 +13,42 @@ export async function POST(request: Request) {
       throw new Error('No topic provided')
     }
 
-    const prompt = `你是一位 Python 编程教师。请为主题"${topic}"创建5个练习题，包括选择题和代码补全题。
+    const prompt = `あなたはPythonのプログラミング講師です。トピック「${topic}」について5つの練習問題を作成してください。選択問題とコード補完問題を含みます。
 
-    请严格按照以下 JSON 格式回答：
+    以下のJSON形式で厳密に回答してください：
 
     {
       "quizzes": [
         {
-          "type": "choice",
-          "question": "问题描述",
-          "options": ["选项A", "选项B", "选项C", "选项D"],
+          "type": "choice", 
+          "question": "問題の説明",
+          "options": ["選択肢A", "選択肢B", "選択肢C", "選択肢D"],
           "answer": 0,
-          "explanation": "详细解释答案"
+          "explanation": "詳細な解説"
         },
         {
           "type": "code",
-          "question": "问题描述",
-          "code": "代码内容，使用___表示需要填空的部分",
-          "answer": "正确答案",
-          "explanation": "详细解释答案"
+          "question": "問題の説明",
+          "code": "コード内容、___で空欄を表示",
+          "answer": "正解",
+          "explanation": "詳細な解説"
         }
       ]
     }
 
-    要求：
-    1. 生成3道选择题和2道代码补全题
-    2. 选择题答案用0-3的数字表示
-    3. 代码补全题只能有一个填空，用___表示
-    4. 每个问题都要有详细的解释
-    5. 问题难度要循序渐进
-    6. 确保生成的是合法的 JSON 格式`
+    要件：
+    1. 3つの選択問題と2つのコード補完問題を生成
+    2. 選択問題の答えは0-3の数字で表現
+    3. コード補完問題は1つの空欄のみで、___で表示
+    4. 各問題に詳細な解説を付ける
+    5. 問題の難易度は段階的に上げる
+    6. 有効なJSON形式であることを確認する`
 
     const message = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
       max_tokens: 2000,
       temperature: 0.7,
-      system: "你是一个专注于教学的Python编程教师。你的练习题要符合教学规律，难度循序渐进。",
+      system: "あなたは教育に特化したPythonのプログラミング講師です。練習問題は教育原理に従い、難易度を段階的に上げていきます。",
       messages: [{
         role: 'user',
         content: prompt
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
 
       const data = JSON.parse(jsonMatch[0])
       
-      // 验证数据结构
+      // データ構造の検証
       if (!Array.isArray(data.quizzes)) {
         throw new Error('Invalid quizzes format')
       }
@@ -80,9 +80,9 @@ export async function POST(request: Request) {
       throw new Error('Invalid JSON format in response')
     }
   } catch (error) {
-    console.error('生成练习失败:', error)
+    console.error('練習問題の生成に失敗しました:', error)
     return NextResponse.json(
-      { error: '生成练习失败' },
+      { error: '練習問題の生成に失敗しました' },
       { status: 500 }
     )
   }

@@ -26,7 +26,7 @@ export default function PracticeExercise({ exercise, index }: PracticeExercisePr
     setFeedback('')
 
     try {
-      // 运行代码
+      // コードを実行
       const response = await fetch('/api/run-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -36,17 +36,17 @@ export default function PracticeExercise({ exercise, index }: PracticeExercisePr
       const data = await response.json()
       
       if (!response.ok) {
-        throw new Error(data.error || '运行代码失败')
+        throw new Error(data.error || 'コードの実行に失敗しました')
       }
 
       if (data.error) {
-        setOutput(`错误: ${data.error}`)
+        setOutput(`エラー: ${data.error}`)
         return
       }
 
-      setOutput(data.output || '代码执行成功，无输出')
+      setOutput(data.output || 'コードが正常に実行されました。出力はありません')
 
-      // 获取 AI 评价
+      // AI評価を取得
       setIsEvaluating(true)
       const feedbackResponse = await fetch('/api/evaluate-code', {
         method: 'POST',
@@ -59,13 +59,13 @@ export default function PracticeExercise({ exercise, index }: PracticeExercisePr
       })
 
       if (!feedbackResponse.ok) {
-        throw new Error('获取评价失败')
+        throw new Error('評価の取得に失敗しました')
       }
 
       const feedbackData = await feedbackResponse.json()
-      setFeedback(feedbackData.feedback || '暂无评价')
+      setFeedback(feedbackData.feedback || '評価はありません')
     } catch (error) {
-      setOutput(`运行错误: ${error instanceof Error ? error.message : '未知错误'}`)
+      setOutput(`実行エラー: ${error instanceof Error ? error.message : '不明なエラー'}`)
     } finally {
       setIsRunning(false)
       setIsEvaluating(false)
@@ -75,7 +75,7 @@ export default function PracticeExercise({ exercise, index }: PracticeExercisePr
   return (
     <div className="bg-white rounded-lg shadow-sm border p-6">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">练习 {index}</h3>
+        <h3 className="text-lg font-semibold text-gray-800">練習 {index}</h3>
         <p className="mt-2 text-gray-600">{exercise.question}</p>
       </div>
 
@@ -109,12 +109,12 @@ export default function PracticeExercise({ exercise, index }: PracticeExercisePr
             {isRunning ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                运行中...
+                実行中...
               </>
             ) : (
               <>
                 <Play className="w-4 h-4" />
-                运行代码
+                コードを実行
               </>
             )}
           </button>
@@ -129,17 +129,17 @@ export default function PracticeExercise({ exercise, index }: PracticeExercisePr
         {isEvaluating && (
           <div className="flex items-center gap-2 text-gray-500">
             <Loader2 className="w-4 h-4 animate-spin" />
-            AI 老师正在评价...
+            AI先生が評価中...
           </div>
         )}
 
         {feedback && (
           <div className="bg-blue-50 p-4 rounded-lg">
-            <h4 className="font-semibold text-blue-800 mb-2">AI 老师评价：</h4>
+            <h4 className="font-semibold text-blue-800 mb-2">AI先生の評価：</h4>
             <p className="text-blue-900">{feedback}</p>
           </div>
         )}
       </div>
     </div>
   )
-} 
+}

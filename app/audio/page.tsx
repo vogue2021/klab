@@ -19,16 +19,16 @@ export default function AudioLearning() {
   const [duration, setDuration] = useState(0)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
-  // 处理主题选择
+  // トピックの選択を処理する
   const handleTopicSelect = (topic: string) => {
     setSelectedTopic(topic)
     setShowLearningContent(true)
   }
 
-  // 初始化音频上下文
+  // オーディオコンテキストを初期化する
   const initAudio = async () => {
     try {
-      // 创建音频上下文（需要用户交互）
+      // オーディオコンテキストを作成（ユーザーの操作が必要）
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext
       const audioContext = new AudioContext()
       
@@ -36,18 +36,18 @@ export default function AudioLearning() {
         await audioContext.resume()
       }
     } catch (err) {
-      console.error('初始化音频失败:', err)
+      console.error('オーディオの初期化に失敗しました:', err)
     }
   }
 
-  // 修改分析代码函数
+  // コード分析関数を修正
   const analyzeCode = async () => {
     if (!code.trim()) return
 
     setIsAnalyzing(true)
     try {
-      // 获取 AI 分析结果
-      console.log('开始分析代码...')
+      // AI分析結果を取得
+      console.log('コードの分析を開始...')
       const analysisResponse = await fetch('/api/analyze-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -55,7 +55,7 @@ export default function AudioLearning() {
       })
 
       if (!analysisResponse.ok) {
-        throw new Error('代码分析失败')
+        throw new Error('コード分析に失敗しました')
       }
 
       const data = await analysisResponse.json()
@@ -65,11 +65,11 @@ export default function AudioLearning() {
       }
 
       const explanation = data.explanation
-      console.log('AI 解释生成成功:', explanation)
+      console.log('AI説明の生成に成功:', explanation)
       setExplanation(explanation)
 
-      // 生成语音
-      console.log('开始生成语音...')
+      // 音声を生成
+      console.log('音声の生成を開始...')
       const audioResponse = await fetch('/api/text-to-speech', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -78,10 +78,10 @@ export default function AudioLearning() {
 
       if (!audioResponse.ok) {
         const errorData = await audioResponse.json()
-        throw new Error(errorData.details || '语音生成失败')
+        throw new Error(errorData.details || '音声の生成に失敗しました')
       }
 
-      console.log('语音生成成功，准备播放')
+      console.log('音声の生成に成功、再生準備中')
       const audioBlob = await audioResponse.blob()
       const audioUrl = URL.createObjectURL(audioBlob)
 
@@ -90,26 +90,26 @@ export default function AudioLearning() {
           audioRef.current.src = audioUrl
           await audioRef.current.play()
           setIsPlaying(true)
-          console.log('音频开始播放')
+          console.log('オーディオの再生を開始')
         } catch (playError) {
-          console.error('播放音频失败:', playError)
-          alert('播放音频需要用户交互，请点击播放按钮')
+          console.error('オーディオの再生に失敗:', playError)
+          alert('オーディオの再生にはユーザーの操作が必要です。再生ボタンをクリックしてください')
         }
       }
     } catch (err) {
-      console.error('处理失败:', err)
-      setIsAnalyzing(false) // 确保状态被重置
-      alert(err instanceof Error ? err.message : '处理失败')
+      console.error('処理に失敗:', err)
+      setIsAnalyzing(false) // 状態をリセット
+      alert(err instanceof Error ? err.message : '処理に失敗しました')
     } finally {
       setIsAnalyzing(false)
     }
   }
 
-  // 修改播放/暂停函数
+  // 再生/一時停止関数を修正
   const togglePlay = async () => {
     if (audioRef.current) {
       try {
-        await initAudio() // 确保音频上下文已初始化
+        await initAudio() // オーディオコンテキストが初期化されていることを確認
         
         if (isPlaying) {
           audioRef.current.pause()
@@ -118,26 +118,26 @@ export default function AudioLearning() {
         }
         setIsPlaying(!isPlaying)
       } catch (err) {
-        console.error('播放控制失败:', err)
+        console.error('再生制御に失敗:', err)
       }
     }
   }
 
-  // 更新进度条
+  // プログレスバーを更新
   const handleTimeUpdate = () => {
     if (audioRef.current) {
       setCurrentTime(audioRef.current.currentTime)
     }
   }
 
-  // 获取音频总时长
+  // オーディオの総時間を取得
   const handleLoadedMetadata = () => {
     if (audioRef.current) {
       setDuration(audioRef.current.duration)
     }
   }
 
-  // 处理进度条点击
+  // プログレスバーのクリックを処理
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (audioRef.current) {
       const rect = e.currentTarget.getBoundingClientRect()
@@ -149,19 +149,19 @@ export default function AudioLearning() {
     }
   }
 
-  // 格式化时间
+  // 時間をフォーマット
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60)
     const seconds = Math.floor(time % 60)
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
-  // 处理返回
+  // 戻る処理
   const handleBack = () => {
     router.push('/')
   }
 
-  // 组件卸载时清理
+  // コンポーネントのアンマウント時にクリーンアップ
   useEffect(() => {
     const audio = audioRef.current
     if (audio) {
@@ -178,36 +178,36 @@ export default function AudioLearning() {
 
   return (
     <div className="flex h-screen">
-      {/* 左侧菜单 */}
+      {/* サイドメニュー */}
       <Sidebar 
         onTopicSelect={handleTopicSelect}
         isCollapsed={isSidebarCollapsed}
         onCollapsedChange={setIsSidebarCollapsed}
       />
 
-      {/* 主要内容区域 */}
+      {/* メインコンテンツエリア */}
       <div className={`flex-1 flex flex-col transition-all duration-300 ${
         isSidebarCollapsed ? 'ml-16' : 'ml-64'
       }`}>
-        {/* 顶部标题栏 */}
+        {/* タイトルバー */}
         <div className="p-4 border-b bg-white flex items-center gap-4">
-          {/* 返回按钮 */}
+          {/* 戻るボタン */}
           <button
             onClick={handleBack}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            title="返回主页"
+            title="ホームに戻る"
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
-          <h1 className="text-2xl font-bold">Python语音教学平台</h1>
+          <h1 className="text-2xl font-bold">Pythonボイス学習プラットフォーム</h1>
         </div>
         
-        {/* 主要内容区域 */}
+        {/* メインコンテンツエリア */}
         <div className="flex-1 p-8">
           <div className="max-w-3xl mx-auto space-y-6">
-            <h2 className="text-xl font-semibold">代码分析</h2>
+            <h2 className="text-xl font-semibold">コード分析</h2>
 
-            {/* 音频播放控制 */}
+            {/* オーディオ再生コントロール */}
             {explanation && (
               <div className="bg-white p-4 rounded-lg shadow">
                 <div className="flex items-center gap-4">
@@ -238,27 +238,27 @@ export default function AudioLearning() {
               </div>
             )}
 
-            {/* 代码输入区域 */}
+            {/* コード入力エリア */}
             <div className="space-y-4">
               <textarea
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 className="w-full h-48 p-4 font-mono text-sm border rounded-lg"
-                placeholder="在这里输入 Python 代码..."
+                placeholder="ここにPythonコードを入力してください..."
               />
               <button
                 onClick={analyzeCode}
                 disabled={isAnalyzing || !code.trim()}
                 className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
               >
-                {isAnalyzing ? '分析中...' : '分析代码'}
+                {isAnalyzing ? '分析中...' : 'コードを分析'}
               </button>
             </div>
 
-            {/* AI 解释显示区域 */}
+            {/* AI説明表示エリア */}
             {explanation && (
               <div className="bg-white p-6 rounded-lg border">
-                <h3 className="text-lg font-semibold mb-4">AI 解释：</h3>
+                <h3 className="text-lg font-semibold mb-4">AI説明：</h3>
                 <p className="text-gray-700 whitespace-pre-wrap">{explanation}</p>
               </div>
             )}
@@ -266,7 +266,7 @@ export default function AudioLearning() {
         </div>
       </div>
 
-      {/* 学习内容覆盖层 */}
+      {/* 学習コンテンツオーバーレイ */}
       {showLearningContent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
           <div className="absolute inset-y-0 right-0 w-2/3 bg-white shadow-lg">
@@ -276,7 +276,7 @@ export default function AudioLearning() {
                 onClick={() => setShowLearningContent(false)}
                 className="text-gray-500 hover:text-gray-700"
               >
-                关闭
+                閉じる
               </button>
             </div>
             <AudioContent 
@@ -287,7 +287,7 @@ export default function AudioLearning() {
         </div>
       )}
 
-      {/* 隐藏的音频元素 */}
+      {/* 非表示のオーディオ要素 */}
       <audio ref={audioRef} className="hidden" />
     </div>
   )

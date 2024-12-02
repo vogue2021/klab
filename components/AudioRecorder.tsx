@@ -34,8 +34,8 @@ export default function AudioRecorder({ onTranscription }: AudioRecorderProps) {
       mediaRecorder.start()
       setIsRecording(true)
     } catch (err) {
-      console.error('录音失败:', err)
-      alert('无法访问麦克风')
+      console.error('録音に失敗しました:', err)
+      alert('マイクにアクセスできません')
     }
   }
 
@@ -43,7 +43,7 @@ export default function AudioRecorder({ onTranscription }: AudioRecorderProps) {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop()
       setIsRecording(false)
-      // 停止所有音轨
+      // すべての音声トラックを停止
       mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop())
     }
   }
@@ -60,14 +60,14 @@ export default function AudioRecorder({ onTranscription }: AudioRecorderProps) {
       })
 
       if (!response.ok) {
-        throw new Error('语音识别失败')
+        throw new Error('音声認識に失敗しました')
       }
 
       const data = await response.json()
       onTranscription(data.text)
     } catch (err) {
-      console.error('处理音频失败:', err)
-      alert('语音识别失败')
+      console.error('音声の処理に失敗しました:', err)
+      alert('音声認識に失敗しました')
     } finally {
       setIsProcessing(false)
     }
@@ -78,7 +78,7 @@ export default function AudioRecorder({ onTranscription }: AudioRecorderProps) {
       {isProcessing ? (
         <div className="flex items-center gap-2 text-blue-500">
           <Loader2 className="w-6 h-6 animate-spin" />
-          <span>正在识别...</span>
+          <span>認識中...</span>
         </div>
       ) : isRecording ? (
         <button
@@ -86,7 +86,7 @@ export default function AudioRecorder({ onTranscription }: AudioRecorderProps) {
           className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
         >
           <Square className="w-4 h-4" />
-          停止录音
+          録音停止
         </button>
       ) : (
         <button
@@ -94,7 +94,7 @@ export default function AudioRecorder({ onTranscription }: AudioRecorderProps) {
           className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
         >
           <Mic className="w-4 h-4" />
-          开始录音
+          録音開始
         </button>
       )}
     </div>
