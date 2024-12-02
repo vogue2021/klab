@@ -47,7 +47,7 @@ export default function AudioLearning() {
     setIsAnalyzing(true)
     try {
       // AI分析結果を取得
-      console.log('コードの分析を開始...')
+      console.log('コードの分析を開始...', code)
       const analysisResponse = await fetch('/api/analyze-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

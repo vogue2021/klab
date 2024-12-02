@@ -13,24 +13,38 @@ export async function POST(request: Request) {
       throw new Error('No code provided')
     }
 
-    const prompt = `あなたはユーモアのあるPythonプログラミング講師です。以下のPythonコードを楽しく分かりやすく説明してください...`
+    const prompt = `あなたはユーモアのあるPythonプログラミング講師です。以下のPythonコードを分析し、
+    楽しく分かりやすい説明を生成してください。
 
-    const message = await anthropic.messages.create({
+    コード：
+    ${code}
+
+    要件：
+    1. 説明は親しみやすく、ユーモアを交えること
+    2. 適切な比喩や例えを使用すること
+    3. 技術的な正確性を保ちながら、分かりやすい言葉で説明すること
+    4. コードの重要なポイントを強調すること
+    5. 声に出して読むのに適した文章にすること
+
+    説明は300-500文字程度で、声に出して読みやすい形式にしてください。`
+
+    const response = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
       max_tokens: 2000,
       temperature: 0.7,
-      system: "あなたはユーモアのあるプログラミング講師で、コードをわかりやすく説明することに特化しています。",
+      system: "あなたはユーモアのあるプログラミング講師で、コードをわかりやすく説明することに特化しています。説明は楽しく、親しみやすく、かつ教育的である必要があります。",
       messages: [{
         role: 'user',
         content: prompt
       }]
     })
 
-    if (!message.content[0]?.text) {
+    const content = response.content[0]
+    if (!content || content.type !== 'text') {
       throw new Error('Empty response from Anthropic')
     }
 
-    const explanation = message.content[0].text.trim()
+    const explanation = content.text.trim()
 
     return NextResponse.json({ explanation })
   } catch (error) {

@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       throw new Error('No text provided')
     }
 
-    console.log('音声生成を開始、テキスト内容:', text) // 詳細ログを追加
+    console.log('音声生成を開始、テキスト内容:', text)
 
     try {
       const mp3 = await openai.audio.speech.create({
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
         input: text,
       })
 
-      console.log('音声生成成功、音声データ送信準備中') // 成功ログ
+      console.log('音声生成成功、音声データ送信準備中')
 
       // 音声データをBufferに変換
       const buffer = Buffer.from(await mp3.arrayBuffer())
@@ -35,12 +35,11 @@ export async function POST(request: Request) {
         },
       })
     } catch (openaiError) {
-      console.error('OpenAI APIの呼び出しに失敗:', openaiError) // APIエラーを記録
+      console.error('OpenAI APIの呼び出しに失敗:', openaiError)
       throw openaiError
     }
   } catch (error) {
     console.error('音声生成に失敗:', error)
-    // より詳細なエラー情報を返す
     return NextResponse.json(
       { 
         error: '音声生成に失敗',
