@@ -5,6 +5,15 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
 })
 
+interface Exercise {
+  question: string
+  initialCode: string
+}
+
+interface ExercisesResponse {
+  exercises: Exercise[]
+}
+
 export async function POST(request: Request) {
   try {
     const { topic } = await request.json()
@@ -38,16 +47,18 @@ export async function POST(request: Request) {
        - 代码中的注释（英文）
     7. 确保生成的是合法的 JSON 格式
     8. 不要在 JSON 中使用特殊字符
+    9. 所有中文字符需要进行 Unicode 编码
 
     注意：JSON 中的换行使用 \\n，确保所有引号都正确转义。`
 
-    const message = await anthropic.messages.create({
+    const response = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
       max_tokens: 2000,
       temperature: 0.5,
       system: `你是一个专注于实践教学的Python编程教师。
       你必须生成完全合法的JSON格式内容。
-      问题描述使用中文，代码和注释使用英文。
+      问题描述使用中文，但需要将中文转换为Unicode编码。
+      代码和注释使用英文。
       确保生成的JSON可以被正确解析。`,
       messages: [{
         role: 'user',
@@ -55,13 +66,14 @@ export async function POST(request: Request) {
       }]
     })
 
-    if (!message.content[0]?.text) {
+    const content = response.content[0]
+    if (!content || content.type !== 'text') {
       throw new Error('Empty response from Anthropic')
     }
 
     // 解析 JSON 响应
     try {
-      const text = message.content[0].text.trim()
+      const text = content.text.trim()
       
       // 记录原始响应以便调试
       console.log('AI Response:', text)
@@ -76,8 +88,13 @@ export async function POST(request: Request) {
       const jsonText = jsonMatch[0]
       console.log('Extracted JSON:', jsonText)
 
+      // 将中文转换为 Unicode 编码
+      const encodedText = jsonText.replace(/[\u4e00-\u9fa5]/g, char => 
+        `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`
+      )
+
       // 解析 JSON
-      const data = JSON.parse(jsonText)
+      const data = JSON.parse(encodedText) as ExercisesResponse
 
       // 验证数据结构
       if (!Array.isArray(data.exercises)) {
@@ -85,27 +102,33 @@ export async function POST(request: Request) {
       }
 
       // 验证每个练习
-      data.exercises.forEach((exercise: any, index: number) => {
+      data.exercises.forEach((exercise, index) => {
         if (!exercise.question || !exercise.initialCode) {
           throw new Error(`Invalid exercise at index ${index}`)
         }
       })
 
-      // 处理代码中的换行符
-      data.exercises = data.exercises.map((exercise: any) => ({
-        ...exercise,
-        initialCode: exercise.initialCode
-          .replace(/\\n/g, '\n')
-          .replace(/\\"/g, '"')
-          .replace(/\\'/g, "'")
-          .trim()
-      }))
+      // 处理代码中的换行符和解码中文
+      const processedData = {
+        exercises: data.exercises.map(exercise => ({
+          ...exercise,
+          // 解码中文字符
+          question: decodeURIComponent(JSON.parse(`"${exercise.question}"`)),
+          initialCode: exercise.initialCode
+            .replace(/\\n/g, '\n')
+            .replace(/\\"/g, '"')
+            .replace(/\\'/g, "'")
+            .trim()
+        }))
+      }
 
-      return NextResponse.json(data)
+      return NextResponse.json(processedData)
     } catch (parseError) {
       console.error('JSON parsing error:', parseError)
-      console.error('Raw response:', message.content[0].text)
-      throw new Error(`Invalid JSON format: ${parseError.message}`)
+      if (content.type === 'text') {
+        console.error('Raw response:', content.text)
+      }
+      throw new Error(`Invalid JSON format: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`)
     }
   } catch (error) {
     console.error('生成练习失败:', error)
