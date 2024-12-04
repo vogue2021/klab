@@ -111,105 +111,79 @@ export default function ReadWritePlatform() {
         </div>
         
         <div className="flex-1 p-8">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-12 gap-6">
-              {/* 選択エリア */}
-              <div className="col-span-4 bg-white p-6 rounded-lg shadow">
-                <h2 className="text-xl font-semibold mb-4">学習内容を選択</h2>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      カテゴリー
-                    </label>
-                    <select
-                      value={selectedCategory}
-                      onChange={(e) => handleCategoryChange(e.target.value)}
-                      className="w-full border rounded-md p-2"
-                    >
-                      <option value="">カテゴリーを選択してください</option>
-                      {TOPICS.map(topic => (
-                        <option key={topic.category} value={topic.category}>
-                          {topic.category}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  {selectedCategory && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        トピック
-                      </label>
-                      <select
-                        value={selectedTopic}
-                        onChange={(e) => handleTopicChange(e.target.value)}
-                        className="w-full border rounded-md p-2"
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-2 gap-6">
+              {/* 左側：練習問題エリア */}
+              <div>
+                <div className="bg-white p-6 rounded-lg shadow">
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-semibold">
+                      {selectedTopic ? `${selectedTopic}練習` : '練習問題'}
+                    </h2>
+                    {selectedTopic && (
+                      <button
+                        onClick={handleRefresh}
+                        disabled={isLoading}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
                       >
-                        <option value="">トピックを選択してください</option>
-                        {TOPICS.find(t => t.category === selectedCategory)?.items.map(item => (
-                          <option key={item} value={item}>
-                            {item}
-                          </option>
-                        ))}
-                      </select>
+                        <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                        再生成
+                      </button>
+                    )}
+                  </div>
+
+                  {isLoading ? (
+                    <div className="flex justify-center items-center h-64">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+                    </div>
+                  ) : quizzes.length > 0 ? (
+                    <div className="space-y-8">
+                      {quizzes.map((quiz, index) => (
+                        <QuizSection
+                          key={index}
+                          quiz={quiz}
+                          index={index + 1}
+                        />
+                      ))}
+                    </div>
+                  ) : selectedTopic ? (
+                    <div className="text-center text-gray-500 py-12">
+                      練習問題を準備中...
+                    </div>
+                  ) : (
+                    <div className="text-center text-gray-500 py-12">
+                      トピックを選択して練習を始めてください
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* 練習エリア */}
-              <div className="col-span-8">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold">
-                    {selectedTopic ? `${selectedTopic}練習` : '練習問題'}
-                  </h2>
-                  {selectedTopic && (
-                    <button
-                      onClick={handleRefresh}
-                      disabled={isLoading}
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-                    >
-                      <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-                      再生成
-                    </button>
+              {/* 右側：学習コンテンツエリア */}
+              <div>
+                <div className="bg-white p-6 rounded-lg shadow">
+                  {selectedTopic ? (
+                    <div className="space-y-6">
+                      <h2 className="text-xl font-semibold">{selectedTopic}の学習内容</h2>
+                      {/* ReadWriteLearningContent の内容をここに直接表示 */}
+                      <div className="prose max-w-none">
+                        {/* 学習コンテンツの内容をここに表示 */}
+                        <ReadWriteLearningContent 
+                          topic={selectedTopic}
+                          isModal={false}  // モーダル表示を無効化
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center text-gray-500 py-12">
+                      トピックを選択して学習を始めてください
+                    </div>
                   )}
                 </div>
-
-                {isLoading ? (
-                  <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
-                  </div>
-                ) : quizzes.length > 0 ? (
-                  <div className="space-y-8">
-                    {quizzes.map((quiz, index) => (
-                      <QuizSection
-                        key={index}
-                        quiz={quiz}
-                        index={index + 1}
-                      />
-                    ))}
-                  </div>
-                ) : selectedTopic ? (
-                  <div className="text-center text-gray-500 py-12">
-                    練習問題を準備中...
-                  </div>
-                ) : (
-                  <div className="text-center text-gray-500 py-12">
-                    トピックを選択して練習を始めてください
-                  </div>
-                )}
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      {showLearningContent && (
-        <ReadWriteLearningContent 
-          topic={selectedTopic}
-          onClose={() => setShowLearningContent(false)}
-        />
-      )}
     </div>
   )
 } 
