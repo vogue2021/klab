@@ -1,58 +1,57 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { Pause, Play, RotateCcw, StepBack, StepForward } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
-interface ExecutionStep {
-  lineNumber: number
+interface Props {
   code: string
-  explanation: string
-  variables: { [key: string]: any }
-  output?: string
 }
 
-export default function CodeAnimation({ code }: { code: string }) {
-  const [steps, setSteps] = useState<ExecutionStep[]>([])
+interface AnimationStep {
+  line: number
+  explanation: string
+  variables: Record<string, any>
+}
+
+export default function CodeAnimation({ code }: Props) {
+  const [steps, setSteps] = useState<AnimationStep[]>([])
   const [currentStep, setCurrentStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [speed, setSpeed] = useState(2000)
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const intervalRef = useRef<NodeJS.Timeout>()
 
   useEffect(() => {
-    if (!code) return
-    
-    const analyzeCode = async () => {
-      setLoading(true)
+    if (!code) {
+      setSteps([])
+      setCurrentStep(0)
       setError(null)
+      return
+    }
+
+    const analyzeCode = async () => {
       try {
-        console.log('Sending code for analysis:', code)
-        
-        const response = await fetch('/api/analyze-animation', {
+        const response = await fetch('/api/analyze-code-animation', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ code })
         })
 
-        const data = await response.json()
-        console.log('Received response:', data)
-
         if (!response.ok) {
-          throw new Error(data.error || 'コードの分析に失敗しました')
+          throw new Error('アニメーション分析に失敗しました')
         }
 
-        if (!data.steps || !Array.isArray(data.steps)) {
-          throw new Error('返されたデータの形式が正しくありません')
+        const data = await response.json()
+        if (data.error) {
+          throw new Error(data.error)
         }
 
-        setSteps(data.steps)
+        setSteps(data.steps || [])
         setCurrentStep(0)
-        setIsPlaying(false)
+        setError(null)
       } catch (err) {
-        console.error('Animation analysis error:', err)
-        setError(err instanceof Error ? err.message : '不明なエラー')
-      } finally {
-        setLoading(false)
+        console.error('アニメーション生成エラー:', err)
+        setError(err instanceof Error ? err.message : 'アニメーションの生成に失敗しました')
+        setSteps([])
+        setCurrentStep(0)
       }
     }
 
@@ -60,147 +59,105 @@ export default function CodeAnimation({ code }: { code: string }) {
   }, [code])
 
   useEffect(() => {
-    let timer: NodeJS.Timeout
-    if (isPlaying && currentStep < steps.length - 1) {
-      timer = setTimeout(() => {
-        setCurrentStep(prev => prev + 1)
-      }, speed)
-    } else if (currentStep === steps.length - 1) {
-      setIsPlaying(false)
+    if (isPlaying) {
+      intervalRef.current = setInterval(() => {
+        setCurrentStep(prev => {
+          if (prev >= steps.length - 1) {
+            setIsPlaying(false)
+            return prev
+          }
+          return prev + 1
+        })
+      }, 2000)
     }
-    return () => clearTimeout(timer)
-  }, [isPlaying, currentStep, steps.length, speed])
 
-  if (loading) {
-    return (
-      <div className="w-full h-full flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
-      </div>
-    )
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [isPlaying, steps.length])
+
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying)
+  }
+
+  const reset = () => {
+    setCurrentStep(0)
+    setIsPlaying(false)
   }
 
   if (error) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center p-4">
-        <div className="text-red-500 mb-4">分析エラー</div>
-        <div className="text-gray-600 text-sm">{error}</div>
-        <button 
-          onClick={() => setError(null)}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          再試行
-        </button>
+      <div className="flex items-center justify-center h-full">
+        <p className="text-red-500">{error}</p>
       </div>
     )
   }
 
+  if (!code || steps.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-gray-500">コードを入力してアニメーションを生成してください</p>
+      </div>
+    )
+  }
+
+  const currentStepData = steps[currentStep]
+  const codeLines = code.split('\n')
+
   return (
-    <div className="w-full h-full flex flex-col bg-white">
-      {/* ツールバー */}
-      <div className="h-12 border-b bg-white px-4 flex items-center justify-between">
-        <h2 className="text-lg font-medium text-gray-700">コード実行アニメーション</h2>
-        <div className="flex items-center gap-2">
-          <select 
-            className="px-2 py-1 border rounded"
-            value={speed}
-            onChange={(e) => setSpeed(Number(e.target.value))}
+    <div className="h-full flex flex-col">
+      {/* コード表示部分 */}
+      <div className="flex-1 bg-gray-900 p-4 rounded-lg overflow-auto font-mono text-sm">
+        {codeLines.map((line, index) => (
+          <div
+            key={index}
+            className={`px-2 ${
+              currentStepData.line === index
+                ? 'bg-blue-500 bg-opacity-20 text-white'
+                : 'text-gray-300'
+            }`}
           >
-            <option value={3000}>低速</option>
-            <option value={2000}>通常</option>
-            <option value={1000}>高速</option>
-          </select>
-        </div>
-      </div>
-
-      {/* メインコンテンツエリア */}
-      <div className="flex-1 grid grid-cols-2 gap-4 p-4 overflow-hidden">
-        {/* コード表示エリア */}
-        <div className="overflow-auto border rounded-lg bg-gray-50">
-          <div className="p-4 font-mono text-sm">
-            {steps.map((step, index) => (
-              <div
-                key={index}
-                className={`px-4 py-1 transition-colors ${
-                  index === currentStep
-                    ? 'bg-blue-100 border-l-4 border-blue-500'
-                    : ''
-                }`}
-              >
-                <span className="mr-4 text-gray-400">{step.lineNumber}</span>
-                <span>{step.code}</span>
-              </div>
-            ))}
+            {line}
           </div>
-        </div>
+        ))}
+      </div>
 
-        {/* 実行説明と変数の状態 */}
-        <div className="overflow-auto border rounded-lg p-4">
-          {steps[currentStep] && (
-            <>
-              <div className="mb-4">
-                <h3 className="font-medium mb-2">実行説明</h3>
-                <p className="text-gray-600">{steps[currentStep].explanation}</p>
-              </div>
-              
-              <div className="mb-4">
-                <h3 className="font-medium mb-2">変数の状態</h3>
-                <div className="bg-gray-50 p-3 rounded">
-                  {Object.entries(steps[currentStep].variables).map(([key, value]) => (
-                    <div key={key} className="flex items-center gap-2 mb-1">
-                      <span className="font-mono text-blue-600">{key}:</span>
-                      <span className="font-mono">{JSON.stringify(value)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {steps[currentStep].output && (
-                <div>
-                  <h3 className="font-medium mb-2">出力</h3>
-                  <pre className="bg-gray-50 p-3 rounded font-mono text-sm">
-                    {steps[currentStep].output}
-                  </pre>
-                </div>
-              )}
-            </>
-          )}
+      {/* 変数状態表示 */}
+      <div className="mt-4 bg-gray-800 p-4 rounded-lg">
+        <h3 className="text-white text-sm font-semibold mb-2">変数の状態：</h3>
+        <div className="grid grid-cols-2 gap-2">
+          {Object.entries(currentStepData.variables || {}).map(([key, value]) => (
+            <div
+              key={key}
+              className="bg-gray-700 p-2 rounded transition-all duration-300 transform hover:scale-105"
+            >
+              <span className="text-blue-300">{key}: </span>
+              <span className="text-white">{JSON.stringify(value)}</span>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* コントロールボタン */}
-      <div className="h-16 border-t bg-gray-50 px-4 flex items-center justify-center gap-4">
+      {/* 説明テキスト */}
+      <div className="mt-4 bg-blue-50 p-4 rounded-lg">
+        <p className="text-blue-800">{currentStepData.explanation}</p>
+      </div>
+
+      {/* コントロール */}
+      <div className="mt-4 flex justify-center gap-4">
         <button
-          onClick={() => setCurrentStep(prev => Math.max(0, prev - 1))}
-          className="p-2 hover:bg-gray-200 rounded-full disabled:opacity-50"
-          disabled={currentStep === 0}
+          onClick={togglePlay}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
         >
-          <StepBack className="w-5 h-5" />
+          {isPlaying ? '一時停止' : '再生'}
         </button>
         <button
-          onClick={() => setIsPlaying(!isPlaying)}
-          className="p-2 hover:bg-gray-200 rounded-full"
+          onClick={reset}
+          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
         >
-          {isPlaying ? (
-            <Pause className="w-5 h-5" />
-          ) : (
-            <Play className="w-5 h-5" />
-          )}
-        </button>
-        <button
-          onClick={() => setCurrentStep(prev => Math.min(steps.length - 1, prev + 1))}
-          className="p-2 hover:bg-gray-200 rounded-full disabled:opacity-50"
-          disabled={currentStep === steps.length - 1}
-        >
-          <StepForward className="w-5 h-5" />
-        </button>
-        <button
-          onClick={() => {
-            setCurrentStep(0)
-            setIsPlaying(false)
-          }}
-          className="p-2 hover:bg-gray-200 rounded-full"
-        >
-          <RotateCcw className="w-5 h-5" />
+          リセット
         </button>
       </div>
     </div>
