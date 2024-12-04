@@ -17,11 +17,11 @@ export default function Sidebar({
   const [selectedTopic, setSelectedTopic] = useState<string>('')
 
   const topics = [
-    '変数とデータ型',
-    '条件文',
-    'ループ構造',
-    '関数の基礎',
-    '配列操作'
+    '基本データ型と関数',
+    'パターンマッチング',
+    'リストと再帰',
+    '型クラス',
+    'モナド'
   ]
 
   const handleTopicClick = (topic: string) => {

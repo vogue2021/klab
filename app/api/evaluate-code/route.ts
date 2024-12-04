@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       throw new Error('Missing required fields')
     }
 
-    const prompt = `あなたはPythonのプログラミング講師です。以下の練習問題に対する生徒の解答を評価してください：
+    const prompt = `あなたはHaskellのプログラミング講師です。以下の練習問題に対する生徒の解答を評価してください：
 
 問題：${question}
 
@@ -25,9 +25,10 @@ ${output || '出力なし'}
 
 以下を含む簡潔な評価を提供してください：
 1. コードは問題を正しく解決しているか
-2. コードスタイルと可読性
-3. 改善できる点
-4. 励ましの言葉
+2. 関数型プログラミングのスタイルと可読性
+3. 型の使用と純粋性
+4. 改善できる点
+5. 励ましの言葉
 
 親切な口調で、評価は簡潔で分かりやすくしてください。`
 
@@ -35,7 +36,7 @@ ${output || '出力なし'}
       model: 'claude-3-sonnet-20240229',
       max_tokens: 1000,
       temperature: 0.7,
-      system: "あなたは親切なプログラミング講師で、生徒を励ますのが得意です。評価は簡潔で具体的で建設的であるべきです。",
+      system: "あなたは親切なHaskellプログラミング講師で、関数型プログラミングの指導と生徒を励ますのが得意です。評価は簡潔で具体的で建設的であるべきです。",
       messages: [{
         role: 'user',
         content: prompt

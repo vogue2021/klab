@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       throw new Error('No code provided')
     }
 
-    const prompt = `あなたはユーモアのあるPythonプログラミング講師です。以下のPythonコードを分析し、
+    const prompt = `あなたはユーモアのあるHaskellプログラミング講師です。以下のHaskellコードを分析し、
     楽しく分かりやすい説明を生成してください。
 
     コード：

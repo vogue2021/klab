@@ -25,7 +25,7 @@ export default function Home() {
               <div className="text-3xl mb-4">🎨</div>
               <h2 className="text-2xl font-semibold mb-2">視覚化学習</h2>
               <p className="text-gray-600">
-                フローチャート、マインドマップ、アニメーションでPythonコードの実行プロセスを理解する
+                フローチャート、マインドマップ、アニメーションでHaskellの関数型プログラミングを理解する
               </p>
             </div>
           </Link>
@@ -36,7 +36,7 @@ export default function Home() {
               <div className="text-3xl mb-4">🎧</div>
               <h2 className="text-2xl font-semibold mb-2">音声教育</h2>
               <p className="text-gray-600">
-                AI音声解説、コード朗読、インタラクティブな対話でプログラミングの概念を学ぶ
+                AI音声解説、コード朗読、インタラクティブな対話でHaskellの純粋関数の概念を学ぶ
               </p>
             </div>
           </Link>
@@ -47,7 +47,7 @@ export default function Home() {
               <div className="text-3xl mb-4">📚</div>
               <h2 className="text-2xl font-semibold mb-2">読み書き練習</h2>
               <p className="text-gray-600">
-                ドキュメント読解、コードコメント、プログラミング演習で知識のポイントを習得
+                型システム、モナド、パターンマッチングなどHaskellの基本概念の習得
               </p>
             </div>
           </Link>
@@ -58,7 +58,7 @@ export default function Home() {
               <div className="text-3xl mb-4">⌨️</div>
               <h2 className="text-2xl font-semibold mb-2">実践学習</h2>
               <p className="text-gray-600">
-                インタラクティブなプログラミング、プロジェクト実践、即時フィードバックで学習成果を強化
+                関数型プログラミング演習、再帰処理の実装、即時フィードバックで学習成果を強化
               </p>
             </div>
           </Link>
@@ -77,7 +77,7 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
               <div className="text-center p-4 bg-gray-50 rounded-lg">
                 <p className="font-medium">視覚分析</p>
-                <p className="text-sm text-gray-600">コードの視覚化解析</p>
+                <p className="text-sm text-gray-600">関数評価の視覚化解析</p>
               </div>
               <div className="text-center p-4 bg-gray-50 rounded-lg">
                 <p className="font-medium">音声対話</p>
@@ -89,7 +89,7 @@ export default function Home() {
               </div>
               <div className="text-center p-4 bg-gray-50 rounded-lg">
                 <p className="font-medium">実践指導</p>
-                <p className="text-sm text-gray-600">プログラミングプロセスガイド</p>
+                <p className="text-sm text-gray-600">関数型プログラミングガイド</p>
               </div>
             </div>
           </div>

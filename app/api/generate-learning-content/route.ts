@@ -14,7 +14,7 @@ export async function POST(request: Request) {
       max_tokens: 4000,
       messages: [{
         role: "user",
-        content: `プログラミング教育の専門家として、Pythonの初心者向けに「${topic}」についての学習コンテンツを生成してください。
+        content: `プログラミング教育の専門家として、Haskellの初心者向けに「${topic}」についての学習コンテンツを生成してください。
                  フローチャートの視覚化については、以下のノードを必ず含めてください：
                  - start (開始ノード)
                  - condition (条件判断ノード)

@@ -22,7 +22,7 @@ export async function POST(request: Request) {
       throw new Error('No topic provided')
     }
 
-    const prompt = `あなたはPythonプログラミング講師です。トピック「${topic}」のための5つの実践演習問題を作成してください。
+    const prompt = `あなたはHaskellプログラミング講師です。トピック「${topic}」のための5つの実践演習問題を作成してください。
 
     以下のJSON形式で厳密に回答してください。有効なJSONを生成することを確認してください：
 
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
       "exercises": [
         {
           "question": "Write a program that...",
-          "initialCode": "# Your code here\\n"
+          "initialCode": "-- Your code here\\n"
         }
       ]
     }
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
       model: 'claude-3-sonnet-20240229',
       max_tokens: 2000,
       temperature: 0.5,
-      system: `あなたは実践的な教育に焦点を当てたPythonプログラミング講師です。
+      system: `あなたは実践的な教育に焦点を当てたHaskellプログラミング講師です。
       完全に有効なJSON形式のコンテンツを生成する必要があります。
       問題の説明は日本語を使用しますが、日本語をUnicodeエンコーディングに変換する必要があります。
       コードとコメントは英語を使用します。

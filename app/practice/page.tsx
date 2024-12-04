@@ -10,23 +10,23 @@ import PracticeExercise from '@/components/PracticeExercise'
 // 学習トピックを定義する
 const TOPICS = [
   {
-    category: "Pythonの基礎",
+    category: "Haskellの基礎",
     items: [
-      "変数とデータ型",
-      "条件文",
-      "ループ文",
-      "関数",
-      "リストとタプル",
-      "辞書とセット"
+      "関数と型",
+      "リストと再帰",
+      "パターンマッチング",
+      "高階関数",
+      "型クラス",
+      "モナド入門"
     ]
   },
   {
     category: "上級概念",
     items: [
-      "クラスとオブジェクト",
-      "ファイル操作",
-      "例外処理",
-      "モジュールとパッケージ"
+      "型システム",
+      "IOモナド",
+      "アプリカティブファンクター",
+      "モナド変換子"
     ]
   }
 ]
@@ -107,7 +107,7 @@ export default function PracticePlatform() {
           >
             <ArrowLeft className="w-6 h-6 text-gray-600" />
           </button>
-          <h1 className="text-2xl font-bold">Python実践学習プラットフォーム</h1>
+          <h1 className="text-2xl font-bold">Haskell実践学習プラットフォーム</h1>
         </div>
         
         <div className="flex-1 p-8">

@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       return NextResponse.json(cachedData)
     }
 
-    const prompt = `Pythonプログラミング教育の専門家として、トピック「${topic}」に関する聴覚学習に適した教育コンテンツを作成してください。
+    const prompt = `Haskellプログラミング教育の専門家として、トピック「${topic}」に関する聴覚学習に適した教育コンテンツを作成してください。
 
     以下の内容を提供してください：
     1. 概念説明：明確で口語的な方法で概念を説明

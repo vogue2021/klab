@@ -47,7 +47,7 @@ export default function VisualPlatform() {
           >
             <ArrowLeft className="w-6 h-6 text-gray-600" />
           </button>
-          <h1 className="text-2xl font-bold">Python可視化学習プラットフォーム</h1>
+          <h1 className="text-2xl font-bold">Haskell可視化学習プラットフォーム</h1>
         </div>
         
         <div className="flex-1 flex min-h-0">

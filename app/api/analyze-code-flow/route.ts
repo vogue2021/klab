@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     const { code } = await request.json()
 
     // まずAIでコードを分析する
-    const prompt = `あなたはPythonのプログラミング講師です。以下のPythonコードを分析し、以下を提供してください：
+    const prompt = `あなたはHaskellのプログラミング講師です。以下のHaskellコードを分析し、以下を提供してください：
     1. コードの主な機能と目的（一文で要約）
     2. コードの実行フロー、簡単なステップで列挙（各ステップ10文字以内）
     3. 詳細な説明：
@@ -92,19 +92,19 @@ function generateFlowchart(code: string, analysis: string): { nodes: Node[], lin
   
   function simplifyLabel(text: string): string {
     // 関数定義を簡略化
-    if (text.includes('def ')) {
-      return text.split('(')[0].replace('def ', '関数: ')
+    if (text.includes('::')) {
+      return text.split('::')[0].trim() + ' 型定義'
     }
-    // 条件判断を簡略化
-    if (text.includes('if ')) {
-      return text.replace(/if\s+/, '判断: ').split(':')[0]
+    if (text.includes('=')) {
+      return text.split('=')[0].trim() + ' 関数定義'
     }
-    // ループを簡略化
-    if (text.includes('while ')) {
-      return text.replace(/while\s+/, 'ループ: ').split(':')[0]
+    // パターンマッチングを簡略化
+    if (text.includes('|')) {
+      return text.replace(/\|/, '分岐: ').split('=')[0]
     }
-    if (text.includes('for ')) {
-      return text.replace(/for\s+/, 'ループ: ').split(':')[0]
+    // ガードを簡略化
+    if (text.includes('otherwise')) {
+      return 'その他の場合'
     }
     // 戻り値を簡略化
     if (text.includes('return ')) {
@@ -118,38 +118,38 @@ function generateFlowchart(code: string, analysis: string): { nodes: Node[], lin
     const currentId = `node${nodeCounter}`
     const step = steps[index]
     
-    if (line.includes('def ')) {
+    if (line.includes('::')) {
       nodes.push({
         id: currentId,
         label: simplifyLabel(line.trim()),
         type: 'function'
       })
-    } else if (line.includes('if ')) {
+    } else if (line.includes('|')) {
       nodes.push({
         id: currentId,
         label: simplifyLabel(line.trim()),
         type: 'condition'
       })
       
-      // 条件分岐を追加
+      // パターンマッチングの分岐を追加
       const trueId = `node${nodeCounter + 1}`
       const falseId = `node${nodeCounter + 2}`
       
       nodes.push(
-        { id: trueId, label: 'True分岐を実行', type: 'process' },
-        { id: falseId, label: 'False分岐を実行', type: 'process' }
+        { id: trueId, label: 'マッチした場合', type: 'process' },
+        { id: falseId, label: '次のパターン', type: 'process' }
       )
       
       links.push(
-        { source: currentId, target: trueId, label: 'True' },
-        { source: currentId, target: falseId, label: 'False' }
+        { source: currentId, target: trueId, label: 'Match' },
+        { source: currentId, target: falseId, label: 'No Match' }
       )
       
       nodeCounter += 2
-    } else if (line.includes('while ') || line.includes('for ')) {
+    } else if (line.includes('where')) {
       nodes.push({
         id: currentId,
-        label: `ループ\n${step || line.trim()}`,
+        label: `補助定義\n${step || line.trim()}`,
         type: 'loop'
       })
     } else {

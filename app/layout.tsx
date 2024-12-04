@@ -8,8 +8,8 @@ import FloatingButton from '@/components/FloatingButton'
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Pythonビジュアル学習プラットフォーム",
-  description: "初学者向けのPython対話型学習プラットフォーム",
+  title: "Haskellビジュアル学習プラットフォーム",
+  description: "初学者向けのHaskell対話型学習プラットフォーム",
 };
 
 export default function RootLayout({
@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+        <script src="https://ghcjs.github.io/ghcjs/dist/ghcjs.js"></script>
       </head>
       <body>
         <div className="flex h-screen">

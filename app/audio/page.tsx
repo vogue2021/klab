@@ -199,7 +199,7 @@ export default function AudioLearning() {
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
-          <h1 className="text-2xl font-bold">Pythonボイス学習プラットフォーム</h1>
+          <h1 className="text-2xl font-bold">Haskellボイス学習プラットフォーム</h1>
         </div>
         
         {/* メインコンテンツエリア */}
@@ -244,7 +244,7 @@ export default function AudioLearning() {
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 className="w-full h-48 p-4 font-mono text-sm border rounded-lg"
-                placeholder="ここにPythonコードを入力してください..."
+                placeholder="ここにHaskellコードを入力してください..."
               />
               <button
                 onClick={analyzeCode}

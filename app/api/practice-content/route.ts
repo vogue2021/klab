@@ -26,7 +26,7 @@ export async function POST(request: Request) {
       throw new Error('No topic provided')
     }
 
-    const prompt = `あなたはPythonのプログラミング講師です。トピック「${topic}」の実践的な教育コンテンツを作成してください。
+    const prompt = `あなたはHaskellのプログラミング講師です。トピック「${topic}」の実践的な教育コンテンツを作成してください。
     
     以下のJSON形式で厳密に回答してください。他の内容は追加しないでください：
 
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
         {
           "title": "例題1：基本的な使い方",
           "content": "ここに例題の説明を書いてください",
-          "codeExample": "# 完全な実行可能なコード",
+          "codeExample": "-- 完全な実行可能なコード",
           "explanation": "ここにコードの解説を書いてください。必ずコード例と完全に対応させてください"
         }
       ]
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
       model: 'claude-3-sonnet-20240229',
       max_tokens: 2000,
       temperature: 0.3,
-      system: `あなたは実践的な教育に焦点を当てたPythonプログラミング講師です。
+      system: `あなたは実践的な教育に焦点を当てたHaskellプログラミング講師です。
       完全に有効なJSON形式のコンテンツを生成する必要があります。
       各例題は完全で独立した実行可能なコードを含む必要があります。
       コード例と説明は厳密に対応している必要があります。

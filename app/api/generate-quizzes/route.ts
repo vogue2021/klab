@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       throw new Error('No topic provided')
     }
 
-    const prompt = `あなたはPythonのプログラミング講師です。トピック「${topic}」について5つの練習問題を作成してください。選択問題とコード補完問題を含みます。
+    const prompt = `あなたはHaskellのプログラミング講師です。トピック「${topic}」について5つの練習問題を作成してください。選択問題とコード補完問題を含みます。
 
     以下のJSON形式で厳密に回答してください：
 
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
       model: 'claude-3-sonnet-20240229',
       max_tokens: 2000,
       temperature: 0.7,
-      system: "あなたは教育に特化したPythonのプログラミング講師です。練習問題は教育原理に従い、難易度を段階的に上げていきます。",
+      system: "あなたは教育に特化したHaskellのプログラミング講師です。練習問題は教育原理に従い、難易度を段階的に上げていきます。",
       messages: [{
         role: 'user',
         content: prompt

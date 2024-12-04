@@ -26,28 +26,28 @@ export async function POST(request: Request) {
         messages: [
           {
             role: 'user',
-            content: `このPythonコードの実行プロセスを分析し、各ステップの詳細な説明を生成してください。
+            content: `このHaskellコードの実行プロセスを分析し、各ステップの詳細な説明を生成してください。
             
             要件：
             1. コードの実行プロセスを行ごとに分析
-            2. 各ステップの操作と変数の変化を説明
-            3. コードのロジックと目的を説明
+            2. 各ステップの関数評価と型の変化を説明
+            3. コードの純粋性とロジックを説明
             
             JSONフォーマットで返してください。例：
             {
               "steps": [
                 {
                   "lineNumber": 1,
-                  "code": "x = 5",
-                  "explanation": "値5を変数xに代入",
-                  "variables": {
-                    "x": 5
+                  "code": "let x = 5",
+                  "explanation": "値5を不変の変数xにバインド",
+                  "types": {
+                    "x": "Integer"
                   }
                 }
               ]
             }
             
-            Pythonコード：
+            Haskellコード：
             ${code}`
           }
         ]
