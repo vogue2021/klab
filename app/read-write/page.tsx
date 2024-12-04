@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowLeft, RefreshCw } from 'lucide-react'
+import { ArrowLeft, RefreshCw, Loader2, Play } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Sidebar from '@/components/Sidebar'
 import ReadWriteLearningContent from '@/components/ReadWriteLearningContent'
@@ -31,14 +31,25 @@ const TOPICS = [
   }
 ]
 
+interface Quiz {
+  type: 'choice' | 'code'
+  question: string
+  options?: string[]
+  code?: string
+  answer: string | number
+  explanation: string
+}
+
 export default function ReadWritePlatform() {
   const router = useRouter()
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [showLearningContent, setShowLearningContent] = useState(false)
   const [selectedTopic, setSelectedTopic] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
-  const [quizzes, setQuizzes] = useState<any[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [questions, setQuestions] = useState<Quiz[]>([])
+  const [isGeneratingPractice, setIsGeneratingPractice] = useState(false)
+  const [mcqCount, setMcqCount] = useState(2)
+  const [fillInBlankCount, setFillInBlankCount] = useState(1)
 
   const handleTopicSelect = (topic: string) => {
     setSelectedTopic(topic)
@@ -52,39 +63,48 @@ export default function ReadWritePlatform() {
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category)
     setSelectedTopic('')
-    setQuizzes([])
+    setQuestions([])
   }
 
   const handleTopicChange = async (topic: string) => {
     setSelectedTopic(topic)
-    await generateQuizzes(topic)
+    await generatePractice()
   }
 
-  const generateQuizzes = async (topic: string) => {
-    setIsLoading(true)
+  const generatePractice = async () => {
+    if (!selectedTopic || isGeneratingPractice) return
+
+    setIsGeneratingPractice(true)
     try {
       const response = await fetch('/api/generate-quizzes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic })
+        body: JSON.stringify({ 
+          topic: selectedTopic,
+          questionTypes: {
+            choice: mcqCount,
+            code: fillInBlankCount
+          }
+        })
       })
-      
+
       if (!response.ok) {
-        throw new Error('Failed to generate quizzes')
+        throw new Error('問題の生成に失敗しました')
       }
 
       const data = await response.json()
-      setQuizzes(data.quizzes)
-    } catch (error) {
-      console.error('Error generating quizzes:', error)
+      setQuestions(data.quizzes)
+    } catch (err) {
+      console.error('問題生成エラー:', err)
+      alert(err instanceof Error ? err.message : '問題の生成に失敗しました')
     } finally {
-      setIsLoading(false)
+      setIsGeneratingPractice(false)
     }
   }
 
   const handleRefresh = () => {
     if (selectedTopic) {
-      generateQuizzes(selectedTopic)
+      generatePractice()
     }
   }
 
@@ -117,28 +137,75 @@ export default function ReadWritePlatform() {
               <div>
                 <div className="bg-white p-6 rounded-lg shadow">
                   <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-semibold">
-                      {selectedTopic ? `${selectedTopic}練習` : '練習問題'}
-                    </h2>
+                    <h2 className="text-xl font-semibold">練習問題</h2>
                     {selectedTopic && (
-                      <button
-                        onClick={handleRefresh}
-                        disabled={isLoading}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-                      >
-                        <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-                        再生成
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={generatePractice}
+                          disabled={isGeneratingPractice}
+                          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
+                        >
+                          {isGeneratingPractice ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              生成中...
+                            </>
+                          ) : (
+                            <>
+                              <Play className="w-4 h-4" />
+                              問題を生成
+                            </>
+                          )}
+                        </button>
+                        <button
+                          onClick={handleRefresh}
+                          disabled={isGeneratingPractice}
+                          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2"
+                        >
+                          <RefreshCw className={`w-4 h-4 ${isGeneratingPractice ? 'animate-spin' : ''}`} />
+                          再生成
+                        </button>
+                      </div>
                     )}
                   </div>
 
-                  {isLoading ? (
-                    <div className="flex justify-center items-center h-64">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+                  {/* 問題生成設定 */}
+                  <div className="mb-6">
+                    <h3 className="font-medium mb-2">問題設定</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          選択問題の数
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="5"
+                          className="w-full px-3 py-2 border rounded-md"
+                          value={mcqCount}
+                          onChange={(e) => setMcqCount(parseInt(e.target.value) || 1)}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          空欄補充問題の数
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="3"
+                          className="w-full px-3 py-2 border rounded-md"
+                          value={fillInBlankCount}
+                          onChange={(e) => setFillInBlankCount(parseInt(e.target.value) || 1)}
+                        />
+                      </div>
                     </div>
-                  ) : quizzes.length > 0 ? (
+                  </div>
+
+                  {/* 問題一覧 */}
+                  {questions.length > 0 ? (
                     <div className="space-y-8">
-                      {quizzes.map((quiz, index) => (
+                      {questions.map((quiz, index) => (
                         <QuizSection
                           key={index}
                           quiz={quiz}
@@ -146,14 +213,10 @@ export default function ReadWritePlatform() {
                         />
                       ))}
                     </div>
-                  ) : selectedTopic ? (
-                    <div className="text-center text-gray-500 py-12">
-                      練習問題を準備中...
-                    </div>
                   ) : (
-                    <div className="text-center text-gray-500 py-12">
-                      トピックを選択して練習を始めてください
-                    </div>
+                    <p className="text-gray-500 text-center py-8">
+                      「問題を生成」ボタンをクリックして問題を生成してください
+                    </p>
                   )}
                 </div>
               </div>

@@ -7,20 +7,31 @@ const anthropic = new Anthropic({
 
 export async function POST(request: Request) {
   try {
-    const { topic } = await request.json()
+    const { topic, questionTypes } = await request.json()
     
     if (!topic) {
       throw new Error('No topic provided')
     }
 
-    const prompt = `あなたはHaskellのプログラミング講師です。トピック「${topic}」について5つの練習問題を作成してください。選択問題とコード補完問題を含みます。
+    const prompt = `あなたはHaskellのプログラミング講師です。トピック「${topic}」について以下の練習問題を作成してください：
+
+    1. 選択問題（${questionTypes.choice}問）：
+       - 基本的な概念の理解を確認する問題
+       - 各問題には4つの選択肢を用意
+       - 正解は0-3の数字で表現（0が最初の選択肢）
+       - 各問題に詳細な解説を付ける
+
+    2. コード補完問題（${questionTypes.code}問）：
+       - コードの一部が空欄（___で表示）になっている問題
+       - 適切なコードを書いて完成させる形式
+       - 各問題に詳細な解説を付ける
 
     以下のJSON形式で厳密に回答してください：
 
     {
       "quizzes": [
         {
-          "type": "choice", 
+          "type": "choice",
           "question": "問題の説明",
           "options": ["選択肢A", "選択肢B", "選択肢C", "選択肢D"],
           "answer": 0,
@@ -30,19 +41,17 @@ export async function POST(request: Request) {
           "type": "code",
           "question": "問題の説明",
           "code": "コード内容、___で空欄を表示",
-          "answer": "正解",
+          "answer": "正解のコード",
           "explanation": "詳細な解説"
         }
       ]
     }
 
     要件：
-    1. 3つの選択問題と2つのコード補完問題を生成
-    2. 選択問題の答えは0-3の数字で表現
-    3. コード補完問題は1つの空欄のみで、___で表示
-    4. 各問題に詳細な解説を付ける
-    5. 問題の難易度は段階的に上げる
-    6. 有効なJSON形式であることを確認する`
+    1. 選択問題は${questionTypes.choice}問、コード補完問題は${questionTypes.code}問を生成
+    2. 問題の難易度は段階的に上げる
+    3. 各問題に詳細な解説を付ける
+    4. 有効なJSON形式であることを確認する`
 
     const message = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
