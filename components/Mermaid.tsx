@@ -1,68 +1,68 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import mermaid from 'mermaid'
 
 interface MermaidProps {
   chart: string
+  config?: {
+    theme?: 'default' | 'neutral' | 'dark' | 'forest' | 'base'
+    flowchart?: {
+      curve?: 'basis' | 'linear' | 'cardinal'
+      nodeSpacing?: number
+      rankSpacing?: number
+      padding?: number
+    }
+  }
 }
 
-export default function Mermaid({ chart }: MermaidProps) {
+export default function Mermaid({ chart, config }: MermaidProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!containerRef.current) return
+
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: config?.theme || 'neutral',
+      flowchart: {
+        curve: config?.flowchart?.curve || 'basis',
+        nodeSpacing: config?.flowchart?.nodeSpacing || 50,
+        rankSpacing: config?.flowchart?.rankSpacing || 50,
+        padding: config?.flowchart?.padding || 10,
+        htmlLabels: true,
+        useMaxWidth: true
+      },
+      securityLevel: 'loose'
+    })
+
     const renderChart = async () => {
-      if (!containerRef.current) return
-
       try {
-        // mermaidを初期化
-        mermaid.initialize({
-          startOnLoad: true,
-          theme: 'default',
-          securityLevel: 'loose',
-          flowchart: {
-            useMaxWidth: true,
-            htmlLabels: true,
-            curve: 'basis'
-          }
-        })
-
-        // 以前のコンテンツをクリア
-        containerRef.current.innerHTML = ''
-
-        // ユニークIDを生成
-        const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`
+        containerRef.current!.innerHTML = ''
+        const { svg } = await mermaid.render(
+          `mermaid-${Math.random().toString(36).substr(2, 9)}`,
+          chart
+        )
         
-        // チャートをレンダリング
-        const { svg } = await mermaid.render(id, chart)
-        if (containerRef.current) {
-          containerRef.current.innerHTML = svg
-        }
-      } catch (err) {
-        console.error('Mermaid render error:', err)
-        setError('チャートのレンダリングに失敗しました')
+        const styledSvg = svg.replace(
+          '<svg ',
+          '<svg style="max-width: 100%; height: auto; display: block; margin: auto;" '
+        )
+        
+        containerRef.current!.innerHTML = styledSvg
+      } catch (error) {
+        console.error('チャートのレンダリングに失敗:', error)
+        containerRef.current!.innerHTML = '<p class="text-red-500">チャートのレンダリングに失敗しました</p>'
       }
     }
 
     renderChart()
-  }, [chart])
-
-  if (error) {
-    return (
-      <div className="p-4 text-red-500 bg-red-50 rounded-lg">
-        {error}
-        <pre className="mt-2 text-sm text-gray-600 overflow-auto">
-          {chart}
-        </pre>
-      </div>
-    )
-  }
+  }, [chart, config])
 
   return (
     <div 
       ref={containerRef} 
-      className="mermaid overflow-auto"
+      className="w-full h-full flex items-center justify-center p-4"
     />
   )
 } 

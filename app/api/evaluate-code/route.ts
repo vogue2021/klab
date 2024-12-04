@@ -5,53 +5,79 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
 })
 
+interface TestCase {
+  input: string
+  expectedOutput: string
+}
+
 export async function POST(request: Request) {
   try {
-    const { code, output, question } = await request.json()
+    const { code, testCases } = await request.json()
     
-    if (!code || !question) {
+    if (!code || !Array.isArray(testCases)) {
       throw new Error('Missing required fields')
     }
 
-    const prompt = `あなたはHaskellのプログラミング講師です。以下の練習問題に対する生徒の解答を評価してください：
+    const prompt = `以下のHaskellコードをテストケースで評価し、結果を返してください：
 
-問題：${question}
-
-生徒のコード：
+コード：
+\`\`\`haskell
 ${code}
+\`\`\`
 
-実行結果：
-${output || '出力なし'}
+テストケース：
+${testCases.map((test: TestCase, index: number) => `
+テストケース${index + 1}:
+入力: ${test.input}
+期待される出力: ${test.expectedOutput}
+`).join('\n')}
 
-以下を含む簡潔な評価を提供してください：
-1. コードは問題を正しく解決しているか
-2. 関数型プログラミングのスタイルと可読性
-3. 型の使用と純粋性
-4. 改善できる点
-5. 励ましの言葉
+以下の形式で回答してください：
+{
+  "feedback": "テスト結果の詳細な説明（成功したケース、失敗したケース、改善点など）"
+}`
 
-親切な口調で、評価は簡潔で分かりやすくしてください。`
-
-    const message = await anthropic.messages.create({
+    const response = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
-      max_tokens: 1000,
+      max_tokens: 2000,
       temperature: 0.7,
-      system: "あなたは親切なHaskellプログラミング講師で、関数型プログラミングの指導と生徒を励ますのが得意です。評価は簡潔で具体的で建設的であるべきです。",
+      system: "あなたはHaskellプログラミングの専門家で、コードのテストと評価を行います。必ず有効なJSONを返してください。",
       messages: [{
         role: 'user',
         content: prompt
       }]
     })
 
-    if (!message.content[0]?.text) {
+    const content = response.content[0]
+    if (!content || content.type !== 'text') {
       throw new Error('Empty response from Anthropic')
     }
 
-    return NextResponse.json({ feedback: message.content[0].text.trim() })
+    let cleanedResponse = content.text.trim()
+    
+    const jsonMatch = cleanedResponse.match(/\{[\s\S]*?\}/)
+    if (!jsonMatch) {
+      throw new Error('Invalid response format')
+    }
+
+    try {
+      const data = JSON.parse(jsonMatch[0].replace(/\n/g, '\\n'))
+      if (!data.feedback) {
+        throw new Error('Invalid response structure')
+      }
+      return NextResponse.json(data)
+    } catch (parseError) {
+      console.error('JSON parsing error:', parseError)
+      throw new Error('Invalid JSON format')
+    }
   } catch (error) {
     console.error('コードの評価に失敗しました:', error)
     return NextResponse.json(
-      { error: 'コードの評価に失敗しました' },
+      { 
+        error: 'コードの評価に失敗しました',
+        details: error instanceof Error ? error.message : '不明なエラー',
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     )
   }

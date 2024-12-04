@@ -87,21 +87,53 @@ export default function VisualContent({ section }: Props) {
     // 函子图的渲染逻辑
   }
 
-  const getMermaidDefinition = (viz: Visualization) => {
+  const getMermaidChart = (viz: Visualization) => {
+    // 添加图表大小控制
+    const config = `%%{init: {'theme': 'neutral', 'flowchart': {'htmlLabels': true, 'padding': 10, 'nodeSpacing': 50, 'rankSpacing': 50}}}%%`
+    
     switch (viz.type) {
       case 'function-call':
         return `
+          ${config}
           graph TD
-          ${viz.elements.map(el => `${el.id}[${el.label}]`).join('\n')}
-          ${viz.connections.map(conn => `${conn.from} -->|${conn.label}| ${conn.to}`).join('\n')}
+            ${viz.elements.map(el => `${el.id}["${el.label}"]`).join('\n  ')}
+            ${viz.connections.map(conn => `${conn.from} -->|"${conn.label}"| ${conn.to}`).join('\n  ')}
+          classDef default fill:#f9f9f9,stroke:#666,stroke-width:2px;
+          classDef highlight fill:#e3f2fd,stroke:#42a5f5,stroke-width:2px;
         `
       case 'data-flow':
         return `
+          ${config}
           graph LR
-          ${viz.elements.map(el => `${el.id}[${el.label}]`).join('\n')}
-          ${viz.connections.map(conn => `${conn.from} -->|${conn.label}| ${conn.to}`).join('\n')}
+            ${viz.elements.map(el => `${el.id}["${el.label}"]`).join('\n  ')}
+            ${viz.connections.map(conn => `${conn.from} -->|"${conn.label}"| ${conn.to}`).join('\n  ')}
+          classDef default fill:#f9f9f9,stroke:#666,stroke-width:2px;
+          classDef highlight fill:#e3f2fd,stroke:#42a5f5,stroke-width:2px;
         `
-      // ... 其他图表类型的 Mermaid 定义
+      case 'type-relation':
+        return `
+          graph TB
+            ${viz.elements.map(el => `${el.id}["${el.label}"]`).join('\n  ')}
+            ${viz.connections.map(conn => `${conn.from} -.->|"${conn.label}"| ${conn.to}`).join('\n  ')}
+        `
+      case 'adt':
+        return `
+          graph TB
+            ${viz.elements.map(el => `${el.id}["${el.label}"]`).join('\n  ')}
+            ${viz.connections.map(conn => `${conn.from} ==>|"${conn.label}"| ${conn.to}`).join('\n  ')}
+        `
+      case 'monad':
+        return `
+          graph LR
+            ${viz.elements.map(el => `${el.id}(("${el.label}"))`).join('\n  ')}
+            ${viz.connections.map(conn => `${conn.from} -->|"${conn.label}"| ${conn.to}`).join('\n  ')}
+        `
+      case 'functor':
+        return `
+          graph LR
+            ${viz.elements.map(el => `${el.id}[["${el.label}"]]`).join('\n  ')}
+            ${viz.connections.map(conn => `${conn.from} ==>|"${conn.label}"| ${conn.to}`).join('\n  ')}
+        `
       default:
         return ''
     }
@@ -126,17 +158,21 @@ export default function VisualContent({ section }: Props) {
         {section.visualizations?.map((viz, index) => (
           <div key={index} className="border rounded-lg p-4">
             <h4 className="font-medium mb-2">{viz.description}</h4>
-            <div className="h-[300px] bg-white">
-              <Mermaid
-                key={index}
-                definition={getMermaidDefinition(viz)}
-                config={{
-                  theme: 'neutral',
-                  flowchart: {
-                    curve: 'basis'
-                  }
-                }}
-              />
+            <div className="relative min-h-[300px] max-h-[500px] bg-white overflow-auto">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Mermaid
+                  chart={getMermaidChart(viz)}
+                  config={{
+                    theme: 'neutral',
+                    flowchart: {
+                      curve: 'basis',
+                      nodeSpacing: 50,
+                      rankSpacing: 50,
+                      padding: 10
+                    }
+                  }}
+                />
+              </div>
             </div>
           </div>
         ))}

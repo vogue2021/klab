@@ -5,36 +5,45 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
 })
 
+interface CodeAnalysis {
+  output: string
+  feedback: string
+}
+
 export async function POST(request: Request) {
   try {
-    const { code } = await request.json()
+    const { code, expectedCode, topic } = await request.json()
     
-    if (!code) {
-      throw new Error('No code provided')
+    if (!code || !expectedCode || !topic) {
+      throw new Error('Code, expected code and topic are required')
     }
 
-    const prompt = `あなたはHaskellプログラミング講師です。以下のHaskellコードを分析し、
-    楽しく分かりやすい説明を生成してください。
+    const prompt = `あなたはHaskellプログラミングの講師です。学習者のコードを評価し、フィードバックを提供してください。
 
-    コード：
-    ${code}
+トピック: ${topic}
 
-    要件：
-    1. 説明は親しみやすく、ユーモアを交えること
-    2. 適切な比喩や例えを使用すること
-    3. 技術的な正確性を保ちながら、分かりやすい言葉で説明すること
-    4. コードの重要なポイントを強調すること
-    5. 声に出して読むのに適した文章にすること
-    6. コードの部分は必ずバッククォート(\`)で囲むこと
-       例：この\`map (+1) [1,2,3]\`は...
+学習者のコード:
+\`\`\`haskell
+${code}
+\`\`\`
 
-    説明は300-500文字程度で、声に出して読みやすい形式にしてください。`
+模範解答:
+\`\`\`haskell
+${expectedCode}
+\`\`\`
+
+以下の点について評価し、厳密なJSON形式で回答してください：
+
+{
+  "output": "コードの実行結果をここに記入",
+  "feedback": "1. コードの正確性: (評価内容) 2. コードの効率性: (評価内容) 3. コーディングスタイル: (評価内容) 4. 改善点: (改善点1, 改善点2) 5. 良い点: (良い点1, 良い点2)"
+}`
 
     const response = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
       max_tokens: 2000,
       temperature: 0.7,
-      system: "あなたはユーモアのあるプログラミング講師で、コードをわかりやすく説明することに特化しています。説明は楽しく、親しみやすく、かつ教育的である必要があります。",
+      system: "あなたはHaskellプログラミングの専門家で、学習者のコードを評価し、建設的なフィードバックを提供することができます。必ず有効なJSONを返してください。改行は使わず、一行で返してください。",
       messages: [{
         role: 'user',
         content: prompt
@@ -46,13 +55,36 @@ export async function POST(request: Request) {
       throw new Error('Empty response from Anthropic')
     }
 
-    const explanation = content.text.trim()
+    let cleanedResponse = content.text.trim()
+    
+    const jsonMatch = cleanedResponse.match(/\{[\s\S]*?\}/)
+    if (!jsonMatch) {
+      console.error('No JSON found in response:', cleanedResponse)
+      throw new Error('No JSON found in response')
+    }
 
-    return NextResponse.json({ explanation })
+    try {
+      const jsonStr = jsonMatch[0].replace(/\n/g, ' ').replace(/\r/g, ' ')
+      const parsedContent = JSON.parse(jsonStr) as CodeAnalysis
+      
+      if (!parsedContent.output || !parsedContent.feedback) {
+        throw new Error('Invalid response structure')
+      }
+
+      return NextResponse.json(parsedContent)
+    } catch (parseError) {
+      console.error('JSON parsing error:', parseError)
+      console.error('Raw response:', cleanedResponse)
+      throw new Error(`Invalid JSON format: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`)
+    }
   } catch (error) {
-    console.error('コード分析に失敗しました:', error)
+    console.error('コードの評価に失敗:', error)
     return NextResponse.json(
-      { error: 'コード分析に失敗しました' },
+      { 
+        error: 'コードの評価に失敗しました', 
+        details: error instanceof Error ? error.message : '不明なエラー',
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     )
   }
