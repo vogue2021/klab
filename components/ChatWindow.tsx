@@ -21,12 +21,14 @@ export default function ChatWindow({ initialQuestion, onClose }: ChatWindowProps
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const hasInitialQuestionBeenSent = useRef(false)
 
   useEffect(() => {
-    if (initialQuestion) {
+    if (initialQuestion && !hasInitialQuestionBeenSent.current) {
+      hasInitialQuestionBeenSent.current = true
       handleSendMessage(initialQuestion)
     }
-  }, [])
+  }, [initialQuestion])
 
   useEffect(() => {
     scrollToBottom()

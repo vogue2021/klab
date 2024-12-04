@@ -23,10 +23,10 @@ export async function POST(request: Request) {
         ...contextMessages,
         {
           role: 'user',
-          content: `このPython関連の質問に答えてください。要件：
+          content: `このHaskell関連の質問に答えてください。要件：
 1. 回答は明確な論理構造を持つこと
 2. 重要な概念は**太字**でマークすること
-3. コード例は \`\`\`python と \`\`\` で囲むこと
+3. コード例は \`\`\`haskell と \`\`\` で囲むこと
 4. 手順がある場合は順序付きリストで表示すること
 5. ポイントがある場合は箇条書きで表示すること
 6. 専門用語は*斜体*でマークすること
