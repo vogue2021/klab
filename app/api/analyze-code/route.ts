@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       throw new Error('No code provided')
     }
 
-    const prompt = `あなたはユーモアのあるHaskellプログラミング講師です。以下のHaskellコードを分析し、
+    const prompt = `あなたはHaskellプログラミング講師です。以下のHaskellコードを分析し、
     楽しく分かりやすい説明を生成してください。
 
     コード：
@@ -25,6 +25,8 @@ export async function POST(request: Request) {
     3. 技術的な正確性を保ちながら、分かりやすい言葉で説明すること
     4. コードの重要なポイントを強調すること
     5. 声に出して読むのに適した文章にすること
+    6. コードの部分は必ずバッククォート(\`)で囲むこと
+       例：この\`map (+1) [1,2,3]\`は...
 
     説明は300-500文字程度で、声に出して読みやすい形式にしてください。`
 
