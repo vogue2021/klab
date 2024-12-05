@@ -68,7 +68,7 @@ export async function POST(request: Request) {
                 {
                   "from": "node1",
                   "to": "node2",
-                  "label": "接続の説���"
+                  "label": "接続の説明"
                 }
               ]
             }
@@ -95,27 +95,50 @@ export async function POST(request: Request) {
       }]
     })
 
-    if (!message.content[0]?.text) {
+    // @ts-ignore - 临时忽略类型检查
+    const responseText = message.content[0]?.text
+    if (!responseText) {
       throw new Error('Empty response from AI')
     }
 
-    // 处理 AI 响应
-    const text = message.content[0].text.trim()
-    let jsonContent = text
+    // 调试输出
+    console.log('AI Response:', responseText)
 
-    // 如果响应被包裹在 ```json ``` 中，提取 JSON 部分
-    if (text.includes('```json')) {
-      jsonContent = text.split('```json')[1].split('```')[0].trim()
-    } else if (text.includes('```')) {
-      jsonContent = text.split('```')[1].split('```')[0].trim()
+    // 尝试提取 JSON
+    let jsonContent = responseText.trim()
+    const jsonMatch = responseText.match(/```(?:json)?([\s\S]*?)```/)
+    
+    if (jsonMatch) {
+      jsonContent = jsonMatch[1].trim()
     }
+
+    // 调试输出
+    console.log('Extracted JSON:', jsonContent)
 
     try {
       const parsedData = JSON.parse(jsonContent)
+      
+      // 验证数据结构
+      if (!parsedData.title || !parsedData.introduction || !Array.isArray(parsedData.sections)) {
+        throw new Error('Invalid data structure')
+      }
+
+      // 验证每个部分
+      parsedData.sections.forEach((section: any) => {
+        if (!section.title || !section.content || !section.codeExample || 
+            !section.explanation || !Array.isArray(section.visualizations)) {
+          throw new Error('Invalid section structure')
+        }
+      })
+
       return NextResponse.json(parsedData)
     } catch (parseError) {
       console.error('JSON parsing error:', parseError)
-      throw new Error('Invalid JSON format in response')
+      console.error('Invalid JSON content:', jsonContent)
+      return NextResponse.json(
+        { error: 'AIからの応答の解析に失敗しました' },
+        { status: 500 }
+      )
     }
 
   } catch (error) {

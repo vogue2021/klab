@@ -17,11 +17,20 @@ export default function Sidebar({
   const [selectedTopic, setSelectedTopic] = useState<string>('')
 
   const topics = [
-    '基本データ型と関数',
-    'パターンマッチング',
-    'リストと再帰',
-    '型クラス',
-    'モナド'
+    'Haskellとは',
+    '宣言と変数',
+    '基本データ型',
+    'GHCiの使い方',
+    '算術演算',
+    '論理演算',
+    '基本的な関数定義',
+    'ペア型',
+    '関数の使用と複数引数',
+    'リストの基礎',
+    'リストの構築',
+    'リストに対する関数',
+    '関数の組み合わせ',
+    'エラーメッセージについて'
   ]
 
   const handleTopicClick = (topic: string) => {
