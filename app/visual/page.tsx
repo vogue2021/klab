@@ -45,7 +45,7 @@ export default function VisualPlatform() {
       setError(null)
 
       try {
-        const response = await fetch('/api/practice-content', {
+        const response = await fetch('/api/generate-learning-content', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ topic })
@@ -91,7 +91,7 @@ export default function VisualPlatform() {
       const runData = await runResponse.json()
       setOutput(runData.output || 'コードが正常に実行されました')
 
-      // 然后进行可视化分析
+      // 然���进行可视化分析
       const analysisResponse = await fetch('/api/analyze-code-flow', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

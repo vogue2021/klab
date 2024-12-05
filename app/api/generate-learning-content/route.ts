@@ -2,94 +2,126 @@ import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 
 const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+  apiKey: process.env.ANTHROPIC_API_KEY
 })
 
 export async function POST(request: Request) {
   try {
     const { topic } = await request.json()
+    
+    if (!topic) {
+      return NextResponse.json(
+        { error: 'トピックが指定されていません' },
+        { status: 400 }
+      )
+    }
 
-    const response = await anthropic.messages.create({
-      model: "claude-3-sonnet-20240229",
+    const prompt = `Haskellプログラミング教育の専門家として、トピック「${topic}」に関する視覚的な学習に適した教育コンテンツを作成してください。
+
+    以下の内容を提供してください：
+
+    1. 概念の視覚化：
+       - 基本的な定義と目的を図解で説明
+       - 概念間の関係性を図示
+       - 実際の処理フローを視覚的に表現
+
+    2. 段階的な学習内容：
+       - 各概念を視覚的な要素と共に説明
+       - 抽象的な概念を具体的な図で表現
+       - 複雑な処理を段階的な図解で解説
+
+    3. コード例と視覚化：
+       - コードの実行フローを図示
+       - データの変換過程を図解
+       - エラーケースと解決策を視覚的に説明
+
+    図解の種類は以下から適切なものを選んでください：
+    - function-call: 関数呼び出し図
+    - data-flow: データフロー図
+    - type-relation: 型関係図
+    - adt: 代数データ型図
+    - monad: Monad操作図
+    - functor: 関手図
+
+    以下のJSON形式で回答してください：
+    {
+      "title": "${topic}の視覚的理解",
+      "introduction": "概要説明（200文字以内）",
+      "sections": [
+        {
+          "title": "セクションタイトル",
+          "content": "説明文",
+          "codeExample": "実行可能なコード例",
+          "explanation": "コードの詳細な説明",
+          "visualizations": [
+            {
+              "type": "図の種類（上記6種類から選択）",
+              "description": "図の説明",
+              "elements": [
+                {
+                  "id": "node1",
+                  "type": "node", 
+                  "label": "表示テキスト"
+                }
+              ],
+              "connections": [
+                {
+                  "from": "node1",
+                  "to": "node2",
+                  "label": "接続の説���"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+
+    注意事項：
+    1. JSONは必ず有効な形式で返してください
+    2. コード例は実行可能な完全なものにしてください
+    3. 図の要素とつながりは具体的に定義してください
+    4. 説明は初心者にもわかりやすい言葉を使ってください
+    5. セクションは2-3個程度に収めてください`
+
+    const message = await anthropic.messages.create({
+      model: 'claude-3-sonnet-20240229',
       max_tokens: 4000,
-      messages: [{
-        role: "user",
-        content: `プログラミング教育の専門家として、Haskellの初心者向けに「${topic}」についての学習コンテンツを生成してください。
-                 フローチャートの視覚化については、以下のノードを必ず含めてください：
-                 - start (開始ノード)
-                 - condition (条件判断ノード)
-                 - true_block (条件が真の時に実行されるコードブロック)
-                 - false_block (条件が偽の時に実行されるコードブロック)
-                 - end (終了ノード)
-                 
-                 各ノードには適切な日本語のラベルを付けてください。
-                 接続線には条件判断結果（True/False）を表示してください。
-                 
-                 以下のJSON形式で厳密に返してください（他のテキストは追加しないでください）：
-                 {
-                   "concept": {
-                     "explanation": "概念説明テキスト",
-                     "visualization": {
-                       "type": "グラフタイプ（force-directed, tree, flowchartなど）",
-                       "nodes": [
-                         {
-                           "id": "一意の識別子",
-                           "label": "表示テキスト",
-                           "type": "ノードタイプ（concept, example, detailなど）",
-                           "description": "ホバー時に表示される詳細説明"
-                         }
-                       ],
-                       "links": [
-                         {
-                           "source": "ソースノードid",
-                           "target": "ターゲットノードid",
-                           "label": "関係の説明（オプション）"
-                         }
-                       ]
-                     }
-                   },
-                   "examples": [
-                     {
-                       "code": "サンプルコード",
-                       "explanation": "コードの説明",
-                       "output": "コードの出力"
-                     }
-                   ],
-                   "exercises": [
-                     {
-                       "question": "練習問題",
-                       "hints": ["ヒント1", "ヒント2"],
-                       "solution": "参考解答"
-                     }
-                   ]
-                 }
-                 
-                 以下を確認してください：
-                 1. 概念の視覚化データ構造はD3.jsでの表示に適していること
-                 2. ノードと接続のデータは意味があり理解しやすいこと
-                 3. コンテンツは簡単で初心者向けであること
-                 4. 厳密にJSON形式で返すこと`
-      }],
       temperature: 0.7,
+      system: "あなたは視覚的な説明に特化したHaskellのプログラミング講師です。",
+      messages: [{
+        role: 'user',
+        content: prompt
+      }]
     })
 
-    // レスポンスの処理
-    let content = response.content[0].text.trim()
-    if (content.startsWith('```json')) {
-      content = content.slice(7)
+    if (!message.content[0]?.text) {
+      throw new Error('Empty response from AI')
     }
-    if (content.endsWith('```')) {
-      content = content.slice(0, -3)
-    }
-    content = content.trim()
 
-    const parsedContent = JSON.parse(content)
-    return NextResponse.json(parsedContent)
+    // 处理 AI 响应
+    const text = message.content[0].text.trim()
+    let jsonContent = text
+
+    // 如果响应被包裹在 ```json ``` 中，提取 JSON 部分
+    if (text.includes('```json')) {
+      jsonContent = text.split('```json')[1].split('```')[0].trim()
+    } else if (text.includes('```')) {
+      jsonContent = text.split('```')[1].split('```')[0].trim()
+    }
+
+    try {
+      const parsedData = JSON.parse(jsonContent)
+      return NextResponse.json(parsedData)
+    } catch (parseError) {
+      console.error('JSON parsing error:', parseError)
+      throw new Error('Invalid JSON format in response')
+    }
 
   } catch (error) {
-    console.error('Generate learning content error:', error)
+    console.error('視覚的コンテンツの生成に失敗:', error)
     return NextResponse.json(
-      { error: 'コンテンツの生成に失敗しました' },
+      { error: '視覚的コンテンツの生成に失敗しました' },
       { status: 500 }
     )
   }
