@@ -59,7 +59,7 @@ export default function PracticePlatform() {
       setError(null)
 
       try {
-        const response = await fetch('/api/practice-content', {
+        const response = await fetch('/api/evaluate-code', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ topic })
@@ -147,7 +147,7 @@ export default function PracticePlatform() {
 
     setRunningCode(prev => ({ ...prev, [index]: true }))
     try {
-      const response = await fetch('/api/analyze-code', {
+      const response = await fetch('/api/evaluate-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -306,7 +306,7 @@ export default function PracticePlatform() {
                                 </pre>
                               </div>
                               <div className="bg-blue-50 p-4 rounded-lg">
-                                <h4 className="font-medium text-blue-800 mb-2">AIからのフィードバック:</h4>
+                                <h4 className="font-medium text-blue-800 mb-2">AIから��フィードバック:</h4>
                                 <p className="text-blue-700 whitespace-pre-wrap">{codeResults[index].feedback}</p>
                               </div>
                             </div>

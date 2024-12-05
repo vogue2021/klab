@@ -36,7 +36,15 @@ export async function POST(request: Request) {
       ]
     })
 
-    return NextResponse.json({ response: response.content[0].text })
+    // 使用新的类型定义处理响应
+    const responseText = response.content.reduce((text, content) => {
+      if ('text' in content) {
+        return text + content.text
+      }
+      return text
+    }, '')
+
+    return NextResponse.json({ response: responseText })
   } catch (error) {
     console.error('Chat API error:', error)
     return NextResponse.json(
