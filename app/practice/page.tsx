@@ -59,7 +59,7 @@ export default function PracticePlatform() {
       setError(null)
 
       try {
-        const response = await fetch('/api/evaluate-code', {
+        const response = await fetch('/api/practice-content', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ topic })
